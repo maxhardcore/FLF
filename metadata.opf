@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='utf-8'?>
+<package xmlns="http://www.idpf.org/2007/opf" unique-identifier="uuid_id" version="2.0">
+    <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
+        <dc:identifier opf:scheme="calibre" id="calibre_id">438</dc:identifier>
+        <dc:identifier opf:scheme="uuid" id="uuid_id">e7525cd4-3e59-46e4-a30e-1e9b6a81d475</dc:identifier>
+        <dc:title>A Frequency Dictionary of Spanish</dc:title>
+        <dc:creator opf:file-as="Davies, Mark &amp; Davies, Kathy Hayward" opf:role="aut">Mark Davies</dc:creator>
+        <dc:creator opf:file-as="Davies, Mark &amp; Davies, Kathy Hayward" opf:role="aut">Kathy Hayward Davies</dc:creator>
+        <dc:contributor opf:file-as="calibre" opf:role="bkp">calibre (4.5.0) [https://calibre-ebook.com]</dc:contributor>
+        <dc:date>2017-11-21T00:00:00+00:00</dc:date>
+        <dc:description>&lt;P&gt;A Frequency Dictionary of Spanish has been fully revised and updated, including over 500 new entries, making it an invaluable resource for students of Spanish. &lt;/P&gt;&lt;P&gt;Based on a new web-based corpus containing more than 2 billion words collected from 21 Spanish-speaking countries, the second edition of &lt;I&gt;A Frequency Dictionary of Spanish &lt;/I&gt;provides the most expansive and up-to-date guidelines on Spanish vocabulary. Each entry is accompanied with an illustrative example and full English translation.&lt;/P&gt;&lt;P&gt;The &lt;I&gt;Dictionary &lt;/I&gt;provides a rich resource for language teaching and curriculum design, while a separate CD version provides the full text in a tab-delimited format ideally suited for use by corpus and computational linguistics.&lt;/P&gt;&lt;P&gt;With entries arranged both by frequency and alphabetically, &lt;I&gt;A Frequency Dictionary of Spanish &lt;/I&gt;enables students of all levels to get the most out of their study of vocabulary in an engaging and efficient way.&lt;/P&gt;</dc:description>
+        <dc:publisher>Taylor and Francis</dc:publisher>
+        <dc:language>eng</dc:language>
+        <meta content="{&quot;Kathy Hayward Davies&quot;: &quot;&quot;, &quot;Mark Davies&quot;: &quot;&quot;}" name="calibre:author_link_map"/>
+        <meta content="2020-01-08T22:28:32.802000+00:00" name="calibre:timestamp"/>
+        <meta content="Frequency Dictionary of Spanish, A" name="calibre:title_sort"/>
+    </metadata>
+    <guide>
+        <reference href="cover.jpg" title="Cover" type="cover"/>
+    </guide>
+</package>
