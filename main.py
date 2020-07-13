@@ -2,7 +2,8 @@ import os
 import time
 import ebooklib
 from ebooklib import epub
-from bs4 import BeautifulSoup
+from collections import defaultdict
+import re
 
 def WebScraper (URL: str):
     scrapedlist=[]
@@ -52,6 +53,7 @@ def WriteNewDoc(lists, sourcefile: str):
             j+=1
             #text_file.write(item + "\n")
             text_file.write(str(item))
+            text_file.write("\n")
 
     print(i, " items written to vocabulary file.")
 
@@ -64,54 +66,51 @@ def EpubScraper(filepath):
     for item in images:
         if item.get_name() == 'frequency.xlink.xhtml':
             scrapedlist.append(item.get_content())
-            #print(item.file_name," lol")
-            #for line in item.get_content():
-            #    print(line)
-        #print(item.get_name())
-
-    #print(scrapedlist, " rofl")
-    #WriteNewDoc(scrapedlist, "epubscraper")
     return scrapedlist
 
-def chap2text(chap):
-#    output = ''
-    output = []
+def ReplaceSpecial(bookcontent):
+    pattern = "bold\"\>(.*?)\<"
+    for entry in bookcontent:
+        entry = entry.decode("utf-8")
+        rofl = re.findall(pattern, entry)
+    del rofl[0]
 
-    soup = BeautifulSoup(chap, 'html.parser')
-    text = soup.find_all(text=True)
-    for t in text:
-        if t.parent.name not in blacklist:
-            #output += '{} '.format(t)
-            output.append(t)
-    return output
+    wordlist = []
+    for eintrag in rofl:
+        wordlist.append(eintrag.replace(u'\xa0', u''))
 
-#abändern auf liste, damit jedes item einzeln appended wird, sonst ist es eine sausage text
-
-#def thtml2ttext(thtml):
-#    Output = []
-#
-#    for html in thtml:
-#        text = chap2text(html)
-#        Output.append(text)
-#    return Output
-
-def epub2text(epub_path):
-    chapters = EpubScraper(epub_path)
-
-    ttext = thtml2ttext(chapters)
-    #WriteNewDoc(ttext, "epubscraaper")
-    return ttext
+    wortliste = []
+    i = 1
+    for wort in wordlist:
+        wortliste.append(wort.replace(str(i), u''))
+        i += 1
+    return wortliste
 
 
-        #print(item)
-    #all_items = book.get_items()
-#
-    #print(all_items)
+def list_duplicates_of(seq,item):
+    start_at = -1
+    locs = []
+    while True:
+        try:
+            loc = seq.index(item,start_at+1)
+        except ValueError:
+            break
+        else:
+            locs.append(loc)
+            start_at = loc
+    return locs
 
-def LookForContent(scrapedlist):
-    grammarlist = ["art", "prep", "nm", "nf", "nc", "nm/f", "nmf", "conj", "v", "pron", "adv", "adj", "num", "interj", ]
-    grammar = [x for x in scrapedlist if (x in grammarlist)]
-    return grammar
+def list_duplicates(seq):
+        tally = defaultdict(list)
+        for i, item in enumerate(seq):
+            tally[item].append(i)
+        return ((key, locs) for key, locs in tally.items()
+                if len(locs) > 1)
+        reddit = []
+        for dup in sorted(list_duplicates(scrapedlist)):
+            reddit.append(dup)
+        return reddit
+
 
 
 
@@ -124,17 +123,15 @@ def LookForContent(scrapedlist):
 #perseent = PercentageKnown((lists))
 #stephenking = WriteNewDoc(lists, "10000_formas")
 
-blacklist = [   '[document]',   'noscript', 'header',   'html', 'meta', 'head','input', 'script',   ]
+
 freq = EpubScraper("FreqSpan.epub")
+rofl = ReplaceSpecial(freq)
+
+#compton = list_duplicates(bup)
 
 
-out=epub2text("FreqSpan.epub")
-editedout = LookForContent(out)
-print(out)
 
+print("lol")
 #todo: build mega list from all lists (immer if not in lists, und erweitern statt datum adden. oder beides, als backup.)
 #todo: syntax vereinfachen
 #todo: from url, nicht nur aus textfle
-
-
-#todo: out zurechtschneiden: von ZAHL (i+=1) bis prep, adj, adv,...
