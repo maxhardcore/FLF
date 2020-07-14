@@ -4,6 +4,7 @@ import ebooklib
 from ebooklib import epub
 from collections import defaultdict
 import re
+import numpy as np
 
 def WebScraper (URL: str):
     #Supposed to scrape a websource. As of know, scrapes from txt document.
@@ -12,11 +13,10 @@ def WebScraper (URL: str):
 
     for line in file_object:
         scrapedlist.append(line.split()[1])
-    count=0
-    for i in scrapedlist:
-        count+=1
+    scrapedlist_sorted = sorted(scrapedlist)
+    count=len(scrapedlist_sorted)
     print(count, " elements scraped from web source.")
-    return scrapedlist
+    return scrapedlist_sorted
 
 def AnkiScraper(folder: str):
     #Scrapes the Anki folder, returns a list of words already in Anki database
@@ -24,28 +24,40 @@ def AnkiScraper(folder: str):
     scrapedlist = []
     for file in filenames:
         scrapedlist.append(file.rsplit(".")[0])
-    count=0
-    for i in scrapedlist:
-        count+=1
+    #Remove all digits (since words with multiple meanings are numbered)
+    pattern = '[0-9]'
+    scrapedlist = [re.sub(pattern, '', i) for i in scrapedlist]
+    #Sorts alphabetically
+    scrapedlist_sorted = sorted(scrapedlist)
+
+    #Removes duplicates
+    scra = list(dict.fromkeys(scrapedlist_sorted))
+    count=len(scra)
     print(count, " elements currently in Anki database.")
-    return scrapedlist
+    return scra
 
 def ListCompare(lists):
     #gives amount of words not yet known (non-duplicates)
-    res = [x for x in lists[0] if x not in lists[1]]
-    count = 0
-    for i in res:
-        count+=1
-    print(count, " elements remaining after removal.")
-    return res
+    #returns a list of all unlearned words
+    res =[]
+    for i in range(len(lists)):
+        for j in range(len(lists[i])):
+            res.append(lists[i][j])
+    unique = set(res)
+    count = len(unique)
+    #res = [x for x in lists[0] if x not in lists[1]]
+    print(count, " elements remaining after removal of duplicates.")
+    return unique
+
+
 
 def PercentageKnown(lists):
     #Compares known (in Anki folder) to scraped (from various sources) content; gives percentage known
-    weblen = len(lists[0])
-    ankilen = len(lists[1])
-    unlearnedlen= len(lists[2])
-    percentageknown = [unlearnedlen/weblen, (weblen - unlearnedlen)/ankilen]
-    print(percentageknown[0]*100, "% remaining from new source. ", round(percentageknown[1]*100,2), "% of Anki elements used.")
+    weblen = len(lists[0]) # 10000: length of textfile scraped
+    ankilen = len(lists[1]) # 5000: length of words in Kindle source
+    unlearnedlen= len(lists[2]) # unique words in the above (11036)
+    percentageknown = [unlearnedlen/(weblen+ankilen), (weblen - unlearnedlen)/ankilen]
+    print(percentageknown[0]*100, "% remaining from new source. ")
     return percentageknown
 
 def WriteNewDoc(lists, sourcefile: str):
@@ -99,50 +111,29 @@ def ReplaceSpecial(bookcontent):
     #Removes the leading number (since entries are numbered by their frequency)
         wortliste.append(wort.replace(str(i), u''))
         i += 1
+    print(len(wortliste), " words from Kindle source")
     return wortliste
 
 
-def list_duplicates_of(seq,item):
-    start_at = -1
-    locs = []
-    while True:
-        try:
-            loc = seq.index(item,start_at+1)
-        except ValueError:
-            break
-        else:
-            locs.append(loc)
-            start_at = loc
-    return locs
-
-def list_duplicates(seq):
-        tally = defaultdict(list)
-        for i, item in enumerate(seq):
-            tally[item].append(i)
-        return ((key, locs) for key, locs in tally.items()
-                if len(locs) > 1)
-        reddit = []
-        for dup in sorted(list_duplicates(scrapedlist)):
-            reddit.append(dup)
-        return reddit
 
 
+#http://corpus.rae.es/frec/10000_formas.TXT
+web = WebScraper("10000_formas.TXT")
 
+#already in folder (unique entries only)
+anki = AnkiScraper("E:\OneDrive\!Espanol\Ankiresoirces")
+#ahogar: 145 ahogar2: 146
 
+#all the words in the kindle frequency dictionary
+FreqDictKindle = ReplaceSpecial(EpubScraper("FreqSpan.epub"))
 
-#web = WebScraper("10000_formas.TXT")
-#anki = AnkiScraper("E:\OneDrive\!Espanol\Ankiresoirces")
-#lists =[web, anki]
-#unlearnedwords = ListCompare(lists)
-#lists.append(unlearnedwords)
-#perseent = PercentageKnown((lists))
+lists =[web, FreqDictKindle]
+unlearnedwords = ListCompare(lists)
+lists.append(unlearnedwords)
+perseent = PercentageKnown((lists))
 #stephenking = WriteNewDoc(lists, "10000_formas")
 
 
-freq = EpubScraper("FreqSpan.epub")
-rofl = ReplaceSpecial(freq)
-
-#compton = list_duplicates(bup)
 
 
 
@@ -150,3 +141,6 @@ print("lol")
 #todo: build mega list from all lists (immer if not in lists, und erweitern statt datum adden. oder beides, als backup.)
 #todo: syntax vereinfachen
 #todo: from url, nicht nur aus textfle
+
+#todo: 11036 (unique worte aus Kindle, Web) vergleichen mit 4287 (bereits added, in dem Anki folder)
+#todo: text dokument schreiben!
