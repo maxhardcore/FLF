@@ -6,6 +6,7 @@ from collections import defaultdict
 import re
 
 def WebScraper (URL: str):
+    #Supposed to scrape a websource. As of know, scrapes from txt document.
     scrapedlist=[]
     file_object = open(URL, "r")
 
@@ -18,6 +19,7 @@ def WebScraper (URL: str):
     return scrapedlist
 
 def AnkiScraper(folder: str):
+    #Scrapes the Anki folder, returns a list of words already in Anki database
     filenames = os.listdir(folder)
     scrapedlist = []
     for file in filenames:
@@ -29,6 +31,7 @@ def AnkiScraper(folder: str):
     return scrapedlist
 
 def ListCompare(lists):
+    #gives amount of words not yet known (non-duplicates)
     res = [x for x in lists[0] if x not in lists[1]]
     count = 0
     for i in res:
@@ -37,6 +40,7 @@ def ListCompare(lists):
     return res
 
 def PercentageKnown(lists):
+    #Compares known (in Anki folder) to scraped (from various sources) content; gives percentage known
     weblen = len(lists[0])
     ankilen = len(lists[1])
     unlearnedlen= len(lists[2])
@@ -45,6 +49,7 @@ def PercentageKnown(lists):
     return percentageknown
 
 def WriteNewDoc(lists, sourcefile: str):
+    #Creates a .txt file with the scraped content; name containts date and time
     timestr = time.strftime("%Y%m%d-%H%M%S")
     text_file = open(sourcefile + timestr + ".txt", "w")
     j=0
@@ -60,28 +65,38 @@ def WriteNewDoc(lists, sourcefile: str):
     text_file.close()
 
 def EpubScraper(filepath):
+    #Creates a list of the content in the Ebook.
     scrapedlist=[]
     book = epub.read_epub(filepath)
+    #Only document (text) content
     images = book.get_items_of_type(ebooklib.ITEM_DOCUMENT)
     for item in images:
+        #Specifying the name of the chapter / content type to be scraped hardcoded
         if item.get_name() == 'frequency.xlink.xhtml':
             scrapedlist.append(item.get_content())
     return scrapedlist
 
 def ReplaceSpecial(bookcontent):
+    #Replaces all special Characters in the scraped content. Also filters the entire string for desired values
+    #String hardcoded due to specific format of Frequency Dictionary Spanish:
+    #Desired content is betweeen 'bold">' and '\<'
     pattern = "bold\"\>(.*?)\<"
     for entry in bookcontent:
+        # Removes all Hexcode-characters
         entry = entry.decode("utf-8")
         rofl = re.findall(pattern, entry)
+    #First entry is a header, not pertaining to my interest
     del rofl[0]
 
     wordlist = []
     for eintrag in rofl:
+    #Replace hexcoded spaces ('\xa0') with empty
         wordlist.append(eintrag.replace(u'\xa0', u''))
 
     wortliste = []
     i = 1
     for wort in wordlist:
+    #Removes the leading number (since entries are numbered by their frequency)
         wortliste.append(wort.replace(str(i), u''))
         i += 1
     return wortliste
