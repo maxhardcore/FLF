@@ -153,18 +153,11 @@ def CompareLemmas(lemmatized, ankidict):
     #strips all '\n' and ' unchanged'
     stripped = []
     for line in f:
-        if "unchanged" in line:
-            stripped.append(line.rstrip(' unchanged\n'))
-    f = open(lemmatized, "r")
-    for line in f:
-        if "\n" in line:
-            stripped.append(line.rstrip("\n"))
-    #for line in f:
-    #    stripped.append(line)
-
-    #stripped = [line.rstrip(' unchanged\n') for line in f if "unchanged" in line]
-    #stripped2 = [line.rstrip('\n') for line in f if '\n' in line]
-    #stripped2 = [line[:-1] for line in stripped]
+        strippedline = line.rstrip("\n")
+        if "unchanged" in strippedline:
+            stripped.append(strippedline.rstrip(' unchanged'))
+        else:
+            stripped.append(strippedline)
 
     unique = [i for i in stripped if i not in ankidict]
     return unique
@@ -198,7 +191,6 @@ FreqDictKindle = ReplaceSpecial(EpubScraper("FreqSpan.epub"))
 #uniklemmas = Lemmatizer("espa.txt")
 #stephenking = WriteNewDoc(uniklemmas, "LemmasEspanol")
 
-#todo: compare lemmatized words mit dem Anki-Dict. mit new words, probably
 
 uniquelemmas = CompareLemmas("lettertest.txt", FreqDictKindle)
 
@@ -212,5 +204,3 @@ print("lol")
 #todo: syntax vereinfachen
 #todo: from url, nicht nur aus textfle
 
-#todo: 11036 (unique worte aus Kindle, Web) vergleichen mit 4287 (bereits added, in dem Anki folder)
-#todo: text dokument schreiben!
