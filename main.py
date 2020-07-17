@@ -154,8 +154,9 @@ def CompareLemmas(lemmatized, ankidict):
     stripped = []
     for line in f:
         strippedline = line.rstrip("\n")
-        if "unchanged" in strippedline:
-            stripped.append(strippedline.rstrip(' unchanged'))
+
+        if re.search(r'\bunchanged\b', strippedline):
+            stripped.append(strippedline[:-10])
         else:
             stripped.append(strippedline)
 
@@ -192,7 +193,9 @@ FreqDictKindle = ReplaceSpecial(EpubScraper("FreqSpan.epub"))
 #stephenking = WriteNewDoc(uniklemmas, "LemmasEspanol")
 
 
-uniquelemmas = CompareLemmas("lettertest.txt", FreqDictKindle)
+uniquelemmas = CompareLemmas("lemmatizedesp.txt", FreqDictKindle)
+
+stephenking = WriteNewDoc(uniquelemmas, "UniquelLemmas_Unlearned_newmethod")
 
 
 
