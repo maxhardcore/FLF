@@ -148,6 +148,29 @@ def Lemmatizer(filename):
 
     return new_list
 
+def CompareLemmas(lemmatized, ankidict):
+    f = open(lemmatized, "r")
+    #strips all '\n' and ' unchanged'
+    stripped = []
+    for line in f:
+        if "unchanged" in line:
+            stripped.append(line.rstrip(' unchanged\n'))
+    f = open(lemmatized, "r")
+    for line in f:
+        if "\n" in line:
+            stripped.append(line.rstrip("\n"))
+    #for line in f:
+    #    stripped.append(line)
+
+    #stripped = [line.rstrip(' unchanged\n') for line in f if "unchanged" in line]
+    #stripped2 = [line.rstrip('\n') for line in f if '\n' in line]
+    #stripped2 = [line[:-1] for line in stripped]
+
+    unique = [i for i in stripped if i not in ankidict]
+    return unique
+
+
+
 
 
 
@@ -159,7 +182,7 @@ def Lemmatizer(filename):
 ##ahogar: 145 ahogar2: 146
 #
 ##all the words in the kindle frequency dictionary
-#FreqDictKindle = ReplaceSpecial(EpubScraper("FreqSpan.epub"))
+FreqDictKindle = ReplaceSpecial(EpubScraper("FreqSpan.epub"))
 #
 #lists =[web, FreqDictKindle]
 #unlearnedwords = ListCompare(lists)
@@ -170,8 +193,15 @@ def Lemmatizer(filename):
 #
 #stephenking = WriteNewDoc(newwords, "NewWordsEspanol")
 
-uniklemmas = Lemmatizer("espa.txt")
-stephenking = WriteNewDoc(uniklemmas, "LemmasEspanol")
+
+#Lemmatize words and write them to a new file
+#uniklemmas = Lemmatizer("espa.txt")
+#stephenking = WriteNewDoc(uniklemmas, "LemmasEspanol")
+
+#todo: compare lemmatized words mit dem Anki-Dict. mit new words, probably
+
+uniquelemmas = CompareLemmas("lettertest.txt", FreqDictKindle)
+
 
 
 
