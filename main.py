@@ -2,9 +2,12 @@ import os
 import time
 import ebooklib
 from ebooklib import epub
-from collections import defaultdict
 import re
 import numpy as np
+import spacy
+from spacy_spanish_lemmatizer import SpacyCustomLemmatizer
+import collections
+
 
 def WebScraper (URL: str):
     #Supposed to scrape a websource. As of know, scrapes from txt document.
@@ -38,7 +41,7 @@ def AnkiScraper(folder: str):
 
 def ListCompare(lists):
     #gives amount of words not yet known (non-duplicates)
-    #returns a list of all unlearned words
+    #returns a set of all unlearned words
     res =[]
     for i in range(len(lists)):
         for j in range(len(lists[i])):
@@ -60,19 +63,19 @@ def PercentageKnown(lists):
     print(percentageknown[0]*100, "% remaining from new source. ")
     return percentageknown
 
-def WriteNewDoc(lists, sourcefile: str):
+def WriteNewDoc(list, sourcefile: str):
     #Creates a .txt file with the scraped content; name containts date and time
     timestr = time.strftime("%Y%m%d-%H%M%S")
     text_file = open(sourcefile + timestr + ".txt", "w")
     j=0
-    for i in range(len(lists)):
-        for item in lists[i]:
-            j+=1
-            #text_file.write(item + "\n")
-            text_file.write(str(item))
-            text_file.write("\n")
 
-    print(i, " items written to vocabulary file.")
+    for item in list:
+        j+=1
+            #text_file.write(item + "\n")
+        text_file.write(str(item))
+        text_file.write("\n")
+
+    print(j, " items written to vocabulary file.")
 
     text_file.close()
 
@@ -114,24 +117,61 @@ def ReplaceSpecial(bookcontent):
     print(len(wortliste), " words from Kindle source")
     return wortliste
 
+def Lemmatizer(filename):
+    #Uses SpaCy's Lemmatizer (submodel: Espanol) to lemmatize entries
+    #todo: nach haeufigkeit sortieren
+    f = open(filename, "r")
+    nlp = spacy.load("es_core_news_sm")
+    lemmatizer = SpacyCustomLemmatizer()
+    nlp.add_pipe(lemmatizer, name="lemmatizer", after="tagger")
+
+    #reads in document and lemmatizes each line
+    uniquelemmas = []
+    i = 0
+    j = 0
+    for line in f:
+        for token in nlp(line):
+            if token.text !="\n":
+                if token.lemma_ != token.text:
+                    uniquelemmas.append(token.lemma_)
+                    print(token.lemma_, " added")
+                    i+=1
+                else:
+                    uniquelemmas.append(token.lemma_ +  " unchanged")
+                    print(token.lemma_, " added")
+                    j+=1
+
+    counts = collections.Counter(uniquelemmas)
+    new_list = sorted(counts, key=counts.get, reverse=True)
+    print(j, " words unchanged")
+    print(len(new_list) + j, " total items")
+
+    return new_list
 
 
 
-#http://corpus.rae.es/frec/10000_formas.TXT
-web = WebScraper("10000_formas.TXT")
 
-#already in folder (unique entries only)
-anki = AnkiScraper("E:\OneDrive\!Espanol\Ankiresoirces")
-#ahogar: 145 ahogar2: 146
+##http://corpus.rae.es/frec/10000_formas.TXT
+#web = WebScraper("10000_formas.TXT")
+#
+##already in folder (unique entries only)
+#anki = AnkiScraper("E:\OneDrive\!Espanol\Ankiresoirces")
+##ahogar: 145 ahogar2: 146
+#
+##all the words in the kindle frequency dictionary
+#FreqDictKindle = ReplaceSpecial(EpubScraper("FreqSpan.epub"))
+#
+#lists =[web, FreqDictKindle]
+#unlearnedwords = ListCompare(lists)
+#lists.append(unlearnedwords)
+#perseent = PercentageKnown((lists))
+#ankiset = set(anki)
+#newwords= list(lists[2]-ankiset)
+#
+#stephenking = WriteNewDoc(newwords, "NewWordsEspanol")
 
-#all the words in the kindle frequency dictionary
-FreqDictKindle = ReplaceSpecial(EpubScraper("FreqSpan.epub"))
-
-lists =[web, FreqDictKindle]
-unlearnedwords = ListCompare(lists)
-lists.append(unlearnedwords)
-perseent = PercentageKnown((lists))
-#stephenking = WriteNewDoc(lists, "10000_formas")
+uniklemmas = Lemmatizer("espa.txt")
+stephenking = WriteNewDoc(uniklemmas, "LemmasEspanol")
 
 
 
