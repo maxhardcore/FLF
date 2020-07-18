@@ -7,6 +7,7 @@ import numpy as np
 import spacy
 from spacy_spanish_lemmatizer import SpacyCustomLemmatizer
 import collections
+import keyboard
 
 
 def WebScraper (URL: str):
@@ -163,6 +164,28 @@ def CompareLemmas(lemmatized, ankidict):
     unique = [i for i in stripped if i not in ankidict]
     return unique
 
+def RemoveParticipio(lemmalist):
+    #Asks user which words endlich in -ido, -ado, -ito to remove
+    #Has to be done manually but will save time
+    f = open(lemmalist, "r")
+    cleanedup = []
+    for line in f:
+        print("Checking " + line + "...")
+        strippedline = line.rstrip("\n")
+        if strippedline[-2:] == "do" or strippedline[-2:] == "to":
+            print("DELETE " + strippedline + " ? [q: delete, w: keep]")
+            if input() == "q":
+                print(strippedline + " deleted")
+            else:
+                print(line + " kept")
+                cleanedup.append(strippedline)
+        else:
+            cleanedup.append(strippedline)
+    return cleanedup
+
+
+
+
 
 
 
@@ -193,10 +216,12 @@ FreqDictKindle = ReplaceSpecial(EpubScraper("FreqSpan.epub"))
 #stephenking = WriteNewDoc(uniklemmas, "LemmasEspanol")
 
 
-uniquelemmas = CompareLemmas("lemmatizedesp.txt", FreqDictKindle)
+#uniquelemmas = CompareLemmas("lemmatizedesp.txt", FreqDictKindle)
+#
+#stephenking = WriteNewDoc(uniquelemmas, "UniquelLemmas_Unlearned_newmethod")
 
-stephenking = WriteNewDoc(uniquelemmas, "UniquelLemmas_Unlearned_newmethod")
-
+cleanup = RemoveParticipio(("PartiTest.txt"))
+stephenking = WriteNewDoc(cleanup, "RemovedParti")
 
 
 
