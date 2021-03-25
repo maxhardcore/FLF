@@ -169,16 +169,20 @@ def RemoveParticipio(lemmalist):
     #Has to be done manually but will save time
     f = open(lemmalist, "r")
     cleanedup = []
+    i=1
     for line in f:
+        print(i)
+        i+=1
         print("Checking " + line + "...")
         strippedline = line.rstrip("\n")
         if strippedline[-2:] == "do" or strippedline[-2:] == "to":
-            print("DELETE " + strippedline + " ? [q: delete, w: keep]")
+            print("DELETE " + strippedline + " ? [q: keep, ELSE: delete]")
             if input() == "q":
-                print(strippedline + " deleted")
-            else:
                 print(line + " kept")
                 cleanedup.append(strippedline)
+            else:
+                print(strippedline + " deleted")
+
         else:
             cleanedup.append(strippedline)
     return cleanedup
@@ -220,7 +224,7 @@ FreqDictKindle = ReplaceSpecial(EpubScraper("FreqSpan.epub"))
 #
 #stephenking = WriteNewDoc(uniquelemmas, "UniquelLemmas_Unlearned_newmethod")
 
-cleanup = RemoveParticipio(("PartiTest.txt"))
+cleanup = RemoveParticipio(("ToAdd - Kopie.txt"))
 stephenking = WriteNewDoc(cleanup, "RemovedParti")
 
 
