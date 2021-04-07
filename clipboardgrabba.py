@@ -18,13 +18,14 @@ from selenium.webdriver.support import expected_conditions as EC
 
 
 
-def WaitForCopy():
+def WaitForCopy(searchterm):
     browser = webdriver.Firefox()
     url = "https://www.reddit.com/r/wow/"
     url = "https://www.google.com/search?q=perro&client=firefox-b-d&hl=de&source=lnms&tbm=isch&sa=X&ved=2ahUKEwiOwJzJpOzvAhUPCuwKHYJlB-QQ_AUoAnoECAEQBA&biw=1920&bih=1005"
+    url = f"https://www.google.com/search?site=&tbm=isch&source=hp&biw=1920&bih=1020&q={searchterm}"
     browser.get(url)
     location = r'C:\Users\Linus\Desktop'
-    filename = 'nbsrulez.jpg'
+    filename = searchterm + '.jpg'
     imageUrlCopied = False
     fileExtensions = ['jpg', 'png', 'JPG', 'jpeg', 'webp', 'gif', 'svg', 'PNG', 'jfif', 'GIF', 'mp3']
     while imageUrlCopied == False:
@@ -55,7 +56,7 @@ def cbg(location, filename):
     
 lokation = r'C:\Users\Linus\Desktop'
 # cbg(lokation, 'lphrules.jpg')
-WaitForCopy()
+WaitForCopy('schlurl')
 
 
 
