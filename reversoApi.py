@@ -58,67 +58,31 @@ def PickTranslations(LemmaTypeFreq):
         if chosenTranslation == "":
             if not pickedTranslations:
                 pickedAll = True
-                'skipped the word, do something'
+                print('skipped the word, do something')
             else:
                 pickedAll = True
-                'picked all translations, did not skip'
+                print('picked all translations, did not skip')
         else:
-            translation = LemmaTypeFreq[int(chosenTranslation)][0][0]
-            pickedTranslations.append(translation)
+            if chosenTranslation.isdigit() and int(chosenTranslation) < len(LemmaTypeFreq):
+                translation = LemmaTypeFreq[int(chosenTranslation)][0][0]
+                pickedTranslations.append(translation)
+            else:
+                print('Please enter an Integer only')
     return pickedTranslations
 
-def GetExampleSentence(searchWord, pickedWords):
+def GetExampleSentences(searchWord, pickedWords):
     headers = {'User-Agent': 'Mozilla/5.0'}
     formattedSentences = []
-    browser = webdriver.Firefox()
     
     for translation in pickedWords:
         url = r"https://context.reverso.net/traduccion/espanol-ingles/" + searchWord + '#' + translation
         browser = webdriver.Firefox()
         browser.get(url)
         print(browser.current_url)
-        
-        
-        
-        
         rawSentences= []
         rawSentencesTrl = []
-        ####################
-        ##with BeautifulSoup:############
-        ###################
-        # response = get(url, headers = headers)
-        ##original example sentences
-        # relevantPartOfHtml2 = soup.find_all("div", {"class": "src ltr"})
-        # for exampleSentence in relevantPartOfHtml2:
-            # rawHtml = (exampleSentence.find_all("span", class_="text")[0]).contents
-            # rawSentences.append([str(i) for i in rawHtml])
-        ##Translated example sentences
-        # relevantPartOfHtml3 = soup.find_all("div", {"class": "trg ltr"})
-        # for exampleSentenceTrl in relevantPartOfHtml3:
-            # rawHtmlTrl = (exampleSentenceTrl.find_all("span", class_="text")[0]).contents
-            # rawSentencesTrl.append([str(i) for i in rawHtmlTrl])
-        ###FORMATTING
-            #remove the line breaks and unnecessary whitespaces
-        # for nonFormattedSentence in rawSentences:
-        #     if nonFormattedSentence[0] == '\n':
-        #         del nonFormattedSentence[0]
-        #     else:
-        #         nonFormattedSentence[0] = nonFormattedSentence[0][11:]
-    
-            #concatenate into a single string
-            # stringParts = ''
-            # for parts in nonFormattedSentence:
-            #     stringParts += str(parts)
-            # print(stringParts, ' conc')
-            #replace <em> (cursive) with <strong> (bold)
-            # firstEmReplaced = re.sub('<em>', '<strong>', stringParts)
-            # formattedSentence = re.sub('</em>', '</strong>', firstEmReplaced)
-            # print(formattedSentence, ' strong')
-            # formattedSentences.append(formattedSentence)
-        
-        ##original example sentences
-
         relevantPartOfHtml2 = browser.find_elements_by_class_name("src")
+        
         for exampleSentence in relevantPartOfHtml2:
             #some src class elements do not contain text. only append those that exist
             if exampleSentence.text:
@@ -129,21 +93,20 @@ def GetExampleSentence(searchWord, pickedWords):
         for exampleSentenceTrl in relevantPartOfHtml3:
             if exampleSentenceTrl.text:
                 rawSentencesTrl.append(exampleSentenceTrl.text)
-    
-
-        # re.sub(pickedWord, '<strong>' + pickedWord + '</strong>', exampleSentence.text)
-            
+                
         browser.quit()
 
     return (rawSentences, rawSentencesTrl)
 
-#https://context.reverso.net/traduccion/ingles-aleman/concatenate#verkn%C3%BCpfen
-#https://context.reverso.net/traduccion/ingles-aleman/concatenate#verketten
-##also suburl mit #beispielwort -> daraus die sätze getten. neue soup nach auswahl der übersetzung -> bsp sätze get.
+
+
 
 y = FrequencyOfTranslation()
 w = PickTranslations(y)
-z= GetExampleSentence(searchWord, w)
+if w:
+    z= GetExampleSentences(searchWord, w)
+else:
+    print(' did not pick any word')
 print('sufi')     
     
     
