@@ -67,7 +67,7 @@ def PickTranslations(LemmaTypeFreq):
                 translation = LemmaTypeFreq[int(chosenTranslation)][0][0]
                 pickedTranslations.append(translation)
             else:
-                print('Please enter an Integer only')
+                print('Please enter a valid integer only')
     return pickedTranslations
 
 def GetExampleSentences(searchWord, pickedWords):
@@ -93,12 +93,28 @@ def GetExampleSentences(searchWord, pickedWords):
         for exampleSentenceTrl in relevantPartOfHtml3:
             if exampleSentenceTrl.text:
                 rawSentencesTrl.append(exampleSentenceTrl.text)
-                
+        formattedSentences.append([rawSentences, rawSentences.Trl])
         browser.quit()
 
-    return (rawSentences, rawSentencesTrl)
+    return formattedSentences
 
 
+def PickSentences(formattedSentences):
+    pickedSentences = []
+    for sentences in formattedSentences:
+        i=0
+        for original in sentences[0]:
+            print(i, original, sentences[1][i])
+        chosenSentence = (input("Enter choice of sentence or press 'Enter' to skip:"))
+        if chosenSentence == "":
+            print('skipped the word, do something')
+        elif chosenSentence.isdigit() and int(chosenSentence) < len(sentences[0]):
+            pickedSentences.append(sentences[0][int(chosenSentence)])
+            print('did not skip, added')
+        else:
+            print('Please enter a valid integer only')
+
+    return pickedSentences
 
 
 y = FrequencyOfTranslation()
@@ -107,6 +123,7 @@ if w:
     z= GetExampleSentences(searchWord, w)
 else:
     print(' did not pick any word')
+a = PickSentences(z)
 print('sufi')     
     
     
