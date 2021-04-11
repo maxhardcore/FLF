@@ -11,6 +11,9 @@ import re
 import time
 from docx import Document
 from selenium import webdriver
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
 #https://github.com/kerrickstaley/genanki
 #https://python.plainenglish.io/make-flashier-flashcards-automating-anki-with-python-2744ed025366
 #https://pypi.org/project/ankipandas/
@@ -78,16 +81,18 @@ def PickTranslations(LemmaTypeFreq):
 def GetExampleSentences(searchWord, pickedWords):
     headers = {'User-Agent': 'Mozilla/5.0'}
     formattedSentences = []
-    
+    browser = webdriver.Firefox()
     for translation in pickedWords:
         url = r"https://context.reverso.net/traduccion/espanol-aleman/" + searchWord + '#' + translation
-        browser = webdriver.Firefox()
+        
         browser.get(url)
+        time.sleep(3)
         print(browser.current_url)
 
         rawSentences= []
         rawSentencesTrl = []
-
+        #https://stackoverflow.com/questions/57644631/get-the-different-value-from-multiple-elements-with-the-same-class-in-selenium-f
+        # print([my_elem.get_attribute("innerHTML") for my_elem in WebDriverWait(browser, 105).until(EC.visibility_of_all_elements_located((By.CLASS_NAME, "src")))])
         relevantPartOfHtml2 = browser.find_elements_by_class_name("src")
         for exampleSentence in relevantPartOfHtml2:
             #some src class elements do not contain text. only append those that exist
@@ -100,7 +105,7 @@ def GetExampleSentences(searchWord, pickedWords):
             if exampleSentenceTrl.text:
                 rawSentencesTrl.append(exampleSentenceTrl.text)
         formattedSentences.append([translation, rawSentences, rawSentencesTrl])
-        browser.quit()
+    browser.quit()
 
     return formattedSentences
 
@@ -141,7 +146,7 @@ print('sufi')
     
     
 
-
+##https://stackoverflow.com/questions/27003423/staleelementreferenceexception-on-python-selenium
 
 ##brauche auch sugerencias, suchen nach nomen/verb in zeiten / personen.
 ##wobei, ist eh lemma was ich kriege.
