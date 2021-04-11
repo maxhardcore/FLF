@@ -22,7 +22,7 @@ from selenium import webdriver
 ##mit suchwort -> damit ich das suchwort dann unten returnen kann
 #beispielsätze?
 searchWord = 'leña'
-url = "https://context.reverso.net/traduccion/espanol-ingles/" + searchWord
+url = "https://context.reverso.net/traduccion/espanol-aleman/" + searchWord
 headers = {'User-Agent': 'Mozilla/5.0'}
 response = get(url, headers = headers)
 soup = BeautifulSoup(response.text, 'html.parser')
@@ -53,6 +53,7 @@ def PickTranslations(LemmaTypeFreq):
     #user picks from all offered translations, then presses Enter to finish.
     pickedAll = False
     pickedTranslations = []
+    pickedNumbers = []
     while pickedAll == False:
         chosenTranslation = (input("Enter choice of translation or press 'Enter' to finish:"))
         if chosenTranslation == "":
@@ -62,12 +63,16 @@ def PickTranslations(LemmaTypeFreq):
             else:
                 pickedAll = True
                 print('picked all translations, did not skip')
-        else:
-            if chosenTranslation.isdigit() and int(chosenTranslation) < len(LemmaTypeFreq):
-                translation = LemmaTypeFreq[int(chosenTranslation)][0][0]
-                pickedTranslations.append(translation)
+        else: # if input is not 'enter'
+            if int(chosenTranslation) not in pickedNumbers:
+                if chosenTranslation.isdigit() and int(chosenTranslation) < len(LemmaTypeFreq):
+                    translation = LemmaTypeFreq[int(chosenTranslation)][0][0]
+                    pickedTranslations.append(translation)
+                    pickedNumbers.append(int(chosenTranslation))
+                else: #if input is too high or not an integer
+                    print('Please enter a valid integer only')
             else:
-                print('Please enter a valid integer only')
+                print('already chose this translation, please make a different choice')
     return pickedTranslations
 
 def GetExampleSentences(searchWord, pickedWords):
@@ -75,14 +80,15 @@ def GetExampleSentences(searchWord, pickedWords):
     formattedSentences = []
     
     for translation in pickedWords:
-        url = r"https://context.reverso.net/traduccion/espanol-ingles/" + searchWord + '#' + translation
+        url = r"https://context.reverso.net/traduccion/espanol-aleman/" + searchWord + '#' + translation
         browser = webdriver.Firefox()
         browser.get(url)
         print(browser.current_url)
+
         rawSentences= []
         rawSentencesTrl = []
+
         relevantPartOfHtml2 = browser.find_elements_by_class_name("src")
-        
         for exampleSentence in relevantPartOfHtml2:
             #some src class elements do not contain text. only append those that exist
             if exampleSentence.text:
@@ -93,26 +99,33 @@ def GetExampleSentences(searchWord, pickedWords):
         for exampleSentenceTrl in relevantPartOfHtml3:
             if exampleSentenceTrl.text:
                 rawSentencesTrl.append(exampleSentenceTrl.text)
-        formattedSentences.append([rawSentences, rawSentences.Trl])
+        formattedSentences.append([translation, rawSentences, rawSentencesTrl])
         browser.quit()
 
     return formattedSentences
 
 
-def PickSentences(formattedSentences):
+def PickSentences(searchWord, formattedSentences):
     pickedSentences = []
     for sentences in formattedSentences:
         i=0
-        for original in sentences[0]:
-            print(i, original, sentences[1][i])
-        chosenSentence = (input("Enter choice of sentence or press 'Enter' to skip:"))
-        if chosenSentence == "":
-            print('skipped the word, do something')
-        elif chosenSentence.isdigit() and int(chosenSentence) < len(sentences[0]):
-            pickedSentences.append(sentences[0][int(chosenSentence)])
-            print('did not skip, added')
-        else:
-            print('Please enter a valid integer only')
+        for original in sentences[1]:
+            print(i, original)
+            print(i, sentences[2][i])
+            i+=1
+        
+        picked = False
+        while picked == False:
+            chosenSentence = (input("Enter choice of sentence or press 'Enter' to skip:"))
+            if chosenSentence == "":
+                print('skipped the word, do something')
+                picked = True
+            elif chosenSentence.isdigit() and int(chosenSentence) < len(sentences[1]):
+                pickedSentences.append([searchWord, sentences[0], sentences[1][int(chosenSentence)],sentences[2][int(chosenSentence)]])
+                print('did not skip, added')
+                picked = True
+            else:
+                print('Please enter a valid integer only')
 
     return pickedSentences
 
@@ -123,7 +136,7 @@ if w:
     z= GetExampleSentences(searchWord, w)
 else:
     print(' did not pick any word')
-a = PickSentences(z)
+a = PickSentences(searchWord, z)
 print('sufi')     
     
     
