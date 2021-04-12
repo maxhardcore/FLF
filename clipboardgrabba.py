@@ -8,15 +8,13 @@ Created on Sun Apr  4 13:16:07 2021
 
 
 import urllib.request
-from tkinter import Tk
+
 from os import path
 from selenium import webdriver
 import os
-from urllib.error import HTTPError
 import time
 
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 
 
 
@@ -45,7 +43,7 @@ def WaitForCopy(searchterm):
                 urllib.request.urlretrieve (currl, filePath)
             except:
                 print('pick another image')
-                time.sleep(5)
+                time.sleep(10)
                 continue                    
             else:
                 browser.quit()
@@ -75,11 +73,11 @@ def CheckUniqueName(location, searchterm):
             
 
 
-def cbg(location, filename):
-    myimage=Tk().clipboard_get()
-    joinedurl = path.join(location,filename)
-    urllib.request.urlretrieve (myimage, joinedurl)
-    print('file successfully saved')
+# def cbg(location, filename):
+#     myimage=Tk().clipboard_get()
+#     joinedurl = path.join(location,filename)
+#     urllib.request.urlretrieve (myimage, joinedurl)
+#     print('file successfully saved')
     
     
 
@@ -88,8 +86,7 @@ lokation = r'C:\Users\Linus\Desktop'
 # cbg(lokation, 'lphrules.jpg')
 
 WaitForCopy('schlurl')
-    # except HTTPError:
-    #     p)
+
     
 # rofl = CheckUniqueName(lokation, 'schlurl.jpg')
 # print(rofl, 'will be the new name')

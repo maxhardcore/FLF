@@ -9,7 +9,6 @@ from bs4 import BeautifulSoup
 from requests import get
 import re
 import time
-from docx import Document
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
@@ -24,11 +23,7 @@ from selenium.webdriver.support import expected_conditions as EC
 
 ##mit suchwort -> damit ich das suchwort dann unten returnen kann
 #beispielsätze?
-searchWord = 'leña'
-url = "https://context.reverso.net/traduccion/espanol-aleman/" + searchWord
-headers = {'User-Agent': 'Mozilla/5.0'}
-response = get(url, headers = headers)
-soup = BeautifulSoup(response.text, 'html.parser')
+
 
 
 def FrequencyOfTranslation():
@@ -135,14 +130,25 @@ def PickSentences(searchWord, formattedSentences):
     return pickedSentences
 
 
-y = FrequencyOfTranslation()
-w = PickTranslations(y)
-if w:
-    z= GetExampleSentences(searchWord, w)
-else:
-    print(' did not pick any word')
-a = PickSentences(searchWord, z)
-print('sufi')     
+# def GoThroughList(file):
+    
+
+searchWord = 'leña'
+url = "https://context.reverso.net/traduccion/espanol-aleman/" + searchWord
+headers = {'User-Agent': 'Mozilla/5.0'}
+response = get(url, headers = headers)
+soup = BeautifulSoup(response.text, 'html.parser')
+
+
+
+# y = FrequencyOfTranslation()
+# w = PickTranslations(y)
+# if w:
+#     z= GetExampleSentences(searchWord, w)
+# else:
+#     print(' did not pick any word')
+# a = PickSentences(searchWord, z)
+# print('sufi')     
     
     
 
