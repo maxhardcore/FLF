@@ -13,6 +13,7 @@ from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
+import clipboardgrabba
 #https://github.com/kerrickstaley/genanki
 #https://python.plainenglish.io/make-flashier-flashcards-automating-anki-with-python-2744ed025366
 #https://pypi.org/project/ankipandas/
@@ -26,7 +27,14 @@ from selenium.webdriver.support import expected_conditions as EC
 
 
 
-def FrequencyOfTranslation():
+def FrequencyOfTranslation(searchWord):
+    
+    
+    # for searchWord in searchList:
+    headers = {'User-Agent': 'Mozilla/5.0'}
+    url = "https://context.reverso.net/traduccion/espanol-aleman/" + searchWord
+    response = get(url, headers = headers)
+    soup = BeautifulSoup(response.text, 'html.parser')
     relevantPartOfHtml1 = soup.find_all("div", {"id": "translations-content"})[0].find_all("a")
     
     LemmaTypeFreq = []
@@ -42,10 +50,11 @@ def FrequencyOfTranslation():
         frequency = int(part.attrs["data-freq"])
         LemmaTypeFreq.append([lemma, typeList, frequency])
     ##STOPS IF WORD CONTAINS '-', needs fixing!
-    print('lol')
+    print('-----', searchWord, '-----')
     return LemmaTypeFreq
 
-def PickTranslations(LemmaTypeFreq):
+def PickTranslations(searchWord):
+    LemmaTypeFreq = FrequencyOfTranslation(searchWord)
     for i in range(len(LemmaTypeFreq)):
         print(str(i), ':', LemmaTypeFreq[i])
     #user picks from all offered translations, then presses Enter to finish.
@@ -73,42 +82,48 @@ def PickTranslations(LemmaTypeFreq):
                 print('already chose this translation, please make a different choice')
     return pickedTranslations
 
-def GetExampleSentences(searchWord, pickedWords):
+def GetExampleSentences(searchWord, browser):
+    pickedWords = PickTranslations(searchWord)
     headers = {'User-Agent': 'Mozilla/5.0'}
     formattedSentences = []
-    browser = webdriver.Firefox()
+    # browser = webdriver.Firefox()
     for translation in pickedWords:
-        url = r"https://context.reverso.net/traduccion/espanol-aleman/" + searchWord + '#' + translation
-        
-        browser.get(url)
-        time.sleep(3)
-        print(browser.current_url)
-
-        rawSentences= []
-        rawSentencesTrl = []
-        #https://stackoverflow.com/questions/57644631/get-the-different-value-from-multiple-elements-with-the-same-class-in-selenium-f
-        # print([my_elem.get_attribute("innerHTML") for my_elem in WebDriverWait(browser, 105).until(EC.visibility_of_all_elements_located((By.CLASS_NAME, "src")))])
-        relevantPartOfHtml2 = browser.find_elements_by_class_name("src")
-        for exampleSentence in relevantPartOfHtml2:
-            #some src class elements do not contain text. only append those that exist
-            if exampleSentence.text:
-                boldedSentence = re.sub(searchWord, '<strong>' + searchWord + '</strong>', exampleSentence.text)
-                rawSentences.append(boldedSentence)
-        
-        relevantPartOfHtml3 = browser.find_elements_by_class_name("trg")
-        for exampleSentenceTrl in relevantPartOfHtml3:
-            if exampleSentenceTrl.text:
-                rawSentencesTrl.append(exampleSentenceTrl.text)
-        formattedSentences.append([translation, rawSentences, rawSentencesTrl])
-    browser.quit()
+        if translation == "":
+            print('did not pick a word')
+        else:
+            url = r"https://context.reverso.net/traduccion/espanol-aleman/" + searchWord + '#' + translation
+            
+            browser.get(url)
+            time.sleep(3)
+            print(browser.current_url)
+    
+            rawSentences= []
+            rawSentencesTrl = []
+            #https://stackoverflow.com/questions/57644631/get-the-different-value-from-multiple-elements-with-the-same-class-in-selenium-f
+            # print([my_elem.get_attribute("innerHTML") for my_elem in WebDriverWait(browser, 105).until(EC.visibility_of_all_elements_located((By.CLASS_NAME, "src")))])
+            relevantPartOfHtml2 = browser.find_elements_by_class_name("src")
+            for exampleSentence in relevantPartOfHtml2:
+                #some src class elements do not contain text. only append those that exist
+                if exampleSentence.text:
+                    boldedSentence = re.sub(searchWord, '<strong>' + searchWord + '</strong>', exampleSentence.text)
+                    rawSentences.append(boldedSentence)
+            
+            relevantPartOfHtml3 = browser.find_elements_by_class_name("trg")
+            for exampleSentenceTrl in relevantPartOfHtml3:
+                if exampleSentenceTrl.text:
+                    rawSentencesTrl.append(exampleSentenceTrl.text)
+            formattedSentences.append([translation, rawSentences, rawSentencesTrl])
+    # browser.quit()
 
     return formattedSentences
 
 
-def PickSentences(searchWord, formattedSentences):
+def PickSentences(searchWord, browser):
     pickedSentences = []
+    formattedSentences = GetExampleSentences(searchWord, browser)
     for sentences in formattedSentences:
         i=0
+        print(searchWord, sentences[0])
         for original in sentences[1]:
             print(i, original)
             print(i, sentences[2][i])
@@ -121,7 +136,9 @@ def PickSentences(searchWord, formattedSentences):
                 print('skipped the word, do something')
                 picked = True
             elif chosenSentence.isdigit() and int(chosenSentence) < len(sentences[1]):
-                pickedSentences.append([searchWord, sentences[0], sentences[1][int(chosenSentence)],sentences[2][int(chosenSentence)]])
+                pic = clipboardgrabba.WaitForCopy(searchWord, browser)
+                pickedSentences.append([searchWord, sentences[0], sentences[1][int(chosenSentence)],sentences[2][int(chosenSentence)], pic])
+                
                 print('did not skip, added')
                 picked = True
             else:
@@ -130,14 +147,9 @@ def PickSentences(searchWord, formattedSentences):
     return pickedSentences
 
 
-# def GoThroughList(file):
-    
 
-searchWord = 'leña'
-url = "https://context.reverso.net/traduccion/espanol-aleman/" + searchWord
-headers = {'User-Agent': 'Mozilla/5.0'}
-response = get(url, headers = headers)
-soup = BeautifulSoup(response.text, 'html.parser')
+
+
 
 
 

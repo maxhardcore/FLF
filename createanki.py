@@ -10,8 +10,8 @@ import os
 # import clipboardgrabba as cbg
 from anki.storage import Collection 
 import reversoApi
-from bs4 import BeautifulSoup
-from requests import get
+from selenium import webdriver
+# import clipboardgrabba
 
 class Note(object):
     def __init__(self, sentence, image):
@@ -105,7 +105,12 @@ def CreateNotes(noteArray):
     #maybe make a folder: list & images -> then batch create notes, delete folder afterwards
     #that way I can also do it in steps and then batch create notes.
     
-    
+def GoThroughList(file):
+    f = open(file, "r")
+    lines = f.readlines()
+    strippedlines = [line.strip() for line in lines]
+    f.close()    
+    return strippedlines
     
     
 
@@ -113,21 +118,23 @@ def CreateNotes(noteArray):
 # CreateBatchCards(notes = [])
 # u = CreateNotes()
 
-searchWord = 'leña'
-url = "https://context.reverso.net/traduccion/espanol-aleman/" + searchWord
+
+browser = webdriver.Firefox()
 headers = {'User-Agent': 'Mozilla/5.0'}
-response = get(url, headers = headers)
-soup = BeautifulSoup(response.text, 'html.parser')
+u = GoThroughList('testfile2.txt')
+# y = reversoApi.FrequencyOfTranslation(u)
+# w = reversoApi.PickTranslations(u)
+for searchWord in u:
+    # if w:
+    #     z= reversoApi.GetExampleSentences(searchWord, u)
+    # else:
+    #     print(' did not pick any word')
+    # z= reversoApi.GetExampleSentences(searchWord, u)
+    # a = reversoApi.PickSentences(searchWord, z)
+    a = reversoApi.PickSentences(searchWord, browser)
+# b= CreateNotes(a)
+browser.quit()
 
-
-y = reversoApi.FrequencyOfTranslation()
-w = reversoApi.PickTranslations(y)
-if w:
-    z= reversoApi.GetExampleSentences(searchWord, w)
-else:
-    print(' did not pick any word')
-a = reversoApi.PickSentences(searchWord, z)
-b= CreateNotes(a)
 print('refl')
 #https://www.youtube.com/watch?v=QZn_ZxpsIw4
 

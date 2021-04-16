@@ -18,12 +18,11 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 
 
-def WaitForCopy(searchterm):
-    browser = webdriver.Firefox()
-    url = "https://www.reddit.com/r/wow/"
-    url = "https://www.google.com/search?q=perro&client=firefox-b-d&hl=de&source=lnms&tbm=isch&sa=X&ved=2ahUKEwiOwJzJpOzvAhUPCuwKHYJlB-QQ_AUoAnoECAEQBA&biw=1920&bih=1005"
+def WaitForCopy(searchterm, browser):
     url = f"https://www.google.com/search?site=&tbm=isch&source=hp&biw=1920&bih=1020&q={searchterm}"
     browser.get(url)
+    
+    browser.switch_to.window(browser.current_window_handle)
     location = r'C:\Users\Linus\Desktop'
     imageUrlCopied = False
     fileExtensions = ['jpg', 'png', 'JPG', 'jpeg', 'webp', 'gif', 'svg', 'PNG', 'jfif', 'GIF', 'mp3']
@@ -40,15 +39,17 @@ def WaitForCopy(searchterm):
             filePath = CheckUniqueName(location, searchterm + '.jpg')
             # joinedurl = path.join(location,searchterm + '.jpg')
             try:
-                urllib.request.urlretrieve (currl, filePath)
+                urllib.request.urlretrieve (currl, filePath[0])
             except:
                 print('pick another image')
                 time.sleep(10)
                 continue                    
             else:
-                browser.quit()
                 imageUrlCopied= True
                 print(' got it now down')
+                imagePath = '<img src="{0}.jpg">'.format(searchterm + filePath[1])
+                browser.minimize_window()
+    return imagePath
 
         
     # if not EC.url_contains('google.com'):
@@ -59,15 +60,15 @@ def CheckUniqueName(location, searchterm):
 
     base, extension = os.path.splitext(searchterm)
     filePath = os.path.join(location, base + extension)
+    i=1
     if os.path.exists(filePath):
-        i=1
         while True:
             newpath = "{0}{2}{1}".format(*path.splitext(filePath) + (i,))
             if os.path.exists(newpath):
                 i+=1
             else:
-                return(newpath)
-    return(filePath)
+                return(newpath, str(i))
+    return(filePath, str(i))
 
 
             
@@ -85,7 +86,7 @@ def CheckUniqueName(location, searchterm):
 lokation = r'C:\Users\Linus\Desktop'
 # cbg(lokation, 'lphrules.jpg')
 
-WaitForCopy('schlurl')
+# WaitForCopy('schlurl')
 
     
 # rofl = CheckUniqueName(lokation, 'schlurl.jpg')
