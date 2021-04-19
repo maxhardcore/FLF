@@ -9,10 +9,10 @@ from bs4 import BeautifulSoup
 from requests import get
 import re
 import time
-from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
+# from selenium import webdriver
+# from selenium.webdriver.support.ui import WebDriverWait
+# from selenium.webdriver.common.by import By
+# from selenium.webdriver.support import expected_conditions as EC
 import clipboardgrabba
 #https://github.com/kerrickstaley/genanki
 #https://python.plainenglish.io/make-flashier-flashcards-automating-anki-with-python-2744ed025366
@@ -35,9 +35,14 @@ def FrequencyOfTranslation(searchWord):
     url = "https://context.reverso.net/traduccion/espanol-aleman/" + searchWord
     response = get(url, headers = headers)
     soup = BeautifulSoup(response.text, 'html.parser')
-    relevantPartOfHtml1 = soup.find_all("div", {"id": "translations-content"})[0].find_all("a")
-    
     LemmaTypeFreq = []
+    try:
+        relevantPartOfHtml1 = soup.find_all("div", {"id": "translations-content"})[0].find_all("a")
+    except IndexError:
+        print('no results found for FoT', searchWord)
+        return LemmaTypeFreq
+    
+    
     for part in relevantPartOfHtml1:
          ##get Lemma,
         lemma = re.compile(r'(?<=\'translation\'\>)(.*?)(?=\<\/em\>)').findall(part.attrs["title"])
@@ -55,18 +60,25 @@ def FrequencyOfTranslation(searchWord):
 
 def PickTranslations(searchWord):
     LemmaTypeFreq = FrequencyOfTranslation(searchWord)
-    for i in range(len(LemmaTypeFreq)):
-        print(str(i), ':', LemmaTypeFreq[i])
-    #user picks from all offered translations, then presses Enter to finish.
     pickedAll = False
     pickedTranslations = []
     pickedNumbers = []
+    if LemmaTypeFreq:
+        for i in range(len(LemmaTypeFreq)):
+            print(str(i), ':', LemmaTypeFreq[i])
+    else:
+        print('well there was no result, so no PickTransl')
+        return pickedTranslations
+    #user picks from all offered translations, then presses Enter to finish.
+
     while pickedAll == False:
         chosenTranslation = (input("Enter choice of translation or press 'Enter' to finish:"))
         if chosenTranslation == "":
+            #if nothing has been picked and user presses Enter
             if not pickedTranslations:
                 pickedAll = True
-                print('skipped the word, do something')
+                print('skipping PickTrl')
+                return pickedTranslations
             else:
                 pickedAll = True
                 print('picked all translations, did not skip')
@@ -87,32 +99,36 @@ def GetExampleSentences(searchWord, browser):
     headers = {'User-Agent': 'Mozilla/5.0'}
     formattedSentences = []
     # browser = webdriver.Firefox()
-    for translation in pickedWords:
-        if translation == "":
-            print('did not pick a word')
-        else:
-            url = r"https://context.reverso.net/traduccion/espanol-aleman/" + searchWord + '#' + translation
-            
-            browser.get(url)
-            time.sleep(3)
-            print(browser.current_url)
-    
-            rawSentences= []
-            rawSentencesTrl = []
-            #https://stackoverflow.com/questions/57644631/get-the-different-value-from-multiple-elements-with-the-same-class-in-selenium-f
-            # print([my_elem.get_attribute("innerHTML") for my_elem in WebDriverWait(browser, 105).until(EC.visibility_of_all_elements_located((By.CLASS_NAME, "src")))])
-            relevantPartOfHtml2 = browser.find_elements_by_class_name("src")
-            for exampleSentence in relevantPartOfHtml2:
-                #some src class elements do not contain text. only append those that exist
-                if exampleSentence.text:
-                    boldedSentence = re.sub(searchWord, '<strong>' + searchWord + '</strong>', exampleSentence.text)
-                    rawSentences.append(boldedSentence)
-            
-            relevantPartOfHtml3 = browser.find_elements_by_class_name("trg")
-            for exampleSentenceTrl in relevantPartOfHtml3:
-                if exampleSentenceTrl.text:
-                    rawSentencesTrl.append(exampleSentenceTrl.text)
-            formattedSentences.append([translation, rawSentences, rawSentencesTrl])
+    if pickedWords:
+        for translation in pickedWords:
+            if translation == "":
+                print('did not pick a word')
+            else:
+                url = r"https://context.reverso.net/traduccion/espanol-aleman/" + searchWord + '#' + translation
+                
+                browser.get(url)
+                time.sleep(3)
+                print(browser.current_url)
+        
+                rawSentences= []
+                rawSentencesTrl = []
+                #https://stackoverflow.com/questions/57644631/get-the-different-value-from-multiple-elements-with-the-same-class-in-selenium-f
+                # print([my_elem.get_attribute("innerHTML") for my_elem in WebDriverWait(browser, 105).until(EC.visibility_of_all_elements_located((By.CLASS_NAME, "src")))])
+                relevantPartOfHtml2 = browser.find_elements_by_class_name("src")
+                for exampleSentence in relevantPartOfHtml2:
+                    #some src class elements do not contain text. only append those that exist
+                    if exampleSentence.text:
+                        boldedSentence = re.sub(searchWord, '<strong>' + searchWord + '</strong>', exampleSentence.text)
+                        rawSentences.append(boldedSentence)
+                
+                relevantPartOfHtml3 = browser.find_elements_by_class_name("trg")
+                for exampleSentenceTrl in relevantPartOfHtml3:
+                    if exampleSentenceTrl.text:
+                        boldedSentenceTrl = re.sub(translation, '<strong>' + translation + '</strong>', exampleSentenceTrl.text)
+                        rawSentencesTrl.append(boldedSentenceTrl)
+                formattedSentences.append([translation, rawSentences, rawSentencesTrl])
+    else:
+        print(' GES empty since PickTrans empty')
     # browser.quit()
 
     return formattedSentences
@@ -121,29 +137,33 @@ def GetExampleSentences(searchWord, browser):
 def PickSentences(searchWord, browser):
     pickedSentences = []
     formattedSentences = GetExampleSentences(searchWord, browser)
-    for sentences in formattedSentences:
-        i=0
-        print(searchWord, sentences[0])
-        for original in sentences[1]:
-            print(i, original)
-            print(i, sentences[2][i])
-            i+=1
-        
-        picked = False
-        while picked == False:
-            chosenSentence = (input("Enter choice of sentence or press 'Enter' to skip:"))
-            if chosenSentence == "":
-                print('skipped the word, do something')
-                picked = True
-            elif chosenSentence.isdigit() and int(chosenSentence) < len(sentences[1]):
-                pic = clipboardgrabba.WaitForCopy(searchWord, browser)
-                pickedSentences.append([searchWord, sentences[0], sentences[1][int(chosenSentence)],sentences[2][int(chosenSentence)], pic])
-                
-                print('did not skip, added')
-                picked = True
-            else:
-                print('Please enter a valid integer only')
-
+    if formattedSentences:
+        for sentences in formattedSentences:
+            i=0
+            
+            for original in sentences[1]:
+                print(i, original)
+                print(i, sentences[2][i])
+                i+=1
+            
+            picked = False
+            while picked == False:
+                print(searchWord, ':', sentences[0])
+                chosenSentence = (input("Enter choice of sentence or press 'Enter' to skip:"))
+                if chosenSentence == "":
+                    print('skipped the word picksent')
+                    picked = True
+                    return pickedSentences
+                elif chosenSentence.isdigit() and int(chosenSentence) < len(sentences[1]):
+                    pic = clipboardgrabba.WaitForCopy(searchWord, sentences[0], browser)
+                    pickedSentences.append([searchWord, sentences[0], sentences[1][int(chosenSentence)],sentences[2][int(chosenSentence)], pic])
+                    
+                    print('did not skip, added')
+                    picked = True
+                else:
+                    print('Please enter a valid integer only')
+    else:
+        print(' no PickSentences since PickTrans empty')
     return pickedSentences
 
 

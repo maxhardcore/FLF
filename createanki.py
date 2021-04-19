@@ -11,6 +11,7 @@ import os
 from anki.storage import Collection 
 import reversoApi
 from selenium import webdriver
+from shutil import copy
 # import clipboardgrabba
 
 class Note(object):
@@ -50,7 +51,7 @@ def CreateSingleCard(image, sentence):
     print('Card created: ', sentence)
     
 
-def CreateBatchCards(notes):
+def CreateBatchCards(noteList):
     ##notes is a list of dicts
     notes = [ 
       {
@@ -63,6 +64,8 @@ def CreateBatchCards(notes):
       },
       # Thousands of additional notes...
     ]
+    
+    notez = CreateNotes(noteList)
     
     # Find the Anki directory
     anki_home = r'C:\Users\Linus\AppData\Roaming\Anki2\User 1'
@@ -80,7 +83,7 @@ def CreateBatchCards(notes):
     col.decks.current()['mid'] = modelBasic['id']
     
     # 3. Create the cards
-    for current_note in notes: 
+    for current_note in notez: 
       note = col.newNote()
       note.fields[0] = current_note["Front"]
       note.fields[1] = current_note["Image"]
@@ -96,7 +99,8 @@ def CreateBatchCards(notes):
 
 def CreateNotes(noteArray):
     # noteArray = [Note("Nick", "Programmer"), Note("Alice","Engineer")]
-    notesList = [dict(Front = n[2], Back = n[1]) for n in noteArray]
+    # notesList = [dict(Front = n[2], Back = n[1]) for n in noteArray]
+    notesList = [dict(Front = v[2], Image = v[4]) for n in noteArray for v in n]
     return notesList
 
     
@@ -111,6 +115,23 @@ def GoThroughList(file):
     strippedlines = [line.strip() for line in lines]
     f.close()    
     return strippedlines
+
+def BackupFile(file):
+    ogLocation = r'C:\E\OneDrive\!!!PyProjects\FLF'
+    backupLocation = r'C:\E\OneDrive\!!!PyProjects\FLF\backup'
+    print("Backing up ", file)
+    copy(ogLocation+"\\"+file, backupLocation+"\\"+file)
+
+def DelWords(file, noteArray):
+    with open(file, "r") as f:
+        lines = f.readlines()
+    addedWords = [v[0] for n in noteArray for v in n]
+    with open(file, "w") as f:
+        for line in lines:
+            #only writes those that are not yet added, thus eliminates added words.
+            if line.strip("\n") not in addedWords:
+                f.write(line)
+                # print('deleted word ', line.strip("\n"))
     
     
 
@@ -120,19 +141,29 @@ def GoThroughList(file):
 
 
 browser = webdriver.Firefox()
+browser.minimize_window()
 headers = {'User-Agent': 'Mozilla/5.0'}
+BackupFile('testfile2.txt')
 u = GoThroughList('testfile2.txt')
-# y = reversoApi.FrequencyOfTranslation(u)
-# w = reversoApi.PickTranslations(u)
-for searchWord in u:
-    # if w:
-    #     z= reversoApi.GetExampleSentences(searchWord, u)
-    # else:
-    #     print(' did not pick any word')
-    # z= reversoApi.GetExampleSentences(searchWord, u)
-    # a = reversoApi.PickSentences(searchWord, z)
-    a = reversoApi.PickSentences(searchWord, browser)
+# for searchWord in u:
+#     a = reversoApi.PickSentences(searchWord, browser)
+a=[]
+try:
+    while True:
+        if u:
+        # a = [reversoApi.PickSentences(searchWord, browser) for searchWord in u]
+            for searchWord in u:
+                a.append(reversoApi.PickSentences(searchWord, browser))
+                u.remove(searchWord)
+        else:
+            print('finished, no more words available')
+            DelWords('testfile2.txt', a)
+            break
+except KeyboardInterrupt:
+    DelWords('testfile2.txt', a)
+    pass
 # b= CreateNotes(a)
+CreateBatchCards(a)
 browser.quit()
 
 print('refl')
