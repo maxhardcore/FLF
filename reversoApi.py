@@ -66,7 +66,22 @@ def GetPossibleLemmas(soup, searchWord, file):
                         print('Please enter a valid integer only')
                 else: #if chosen Number already in picked Numbers
                     print('already chose this translation, please make a different choice') 
-    print(pickedLemmas)
+        print(pickedLemmas)
+        AddLemmasToTextFile(pickedLemmas, file)
+    
+def AddLemmasToTextFile(pickedLemmas, file):
+    with open(file, "r") as f:
+        lines = f.readlines()
+    strippedLines = [line.strip() for line in lines]   
+    with open(file, "a") as f:
+        # f.write('\n')
+        for lemma in pickedLemmas:
+            if lemma not in strippedLines:
+        #only writes those that are not yet added, thus eliminates added words.
+                f.write(lemma+'\n')
+                print('added', lemma, 'to file')
+    
+
 
 def FrequencyOfTranslation(searchWord, file):
     
@@ -220,14 +235,14 @@ def PickSentences(searchWord, browser, file):
 
 
 
-y = FrequencyOfTranslation('traslado', 'probieren.txt')
+# y = FrequencyOfTranslation('traslado', 'probieren.txt')
 # w = PickTranslations(y)
 # if w:
 #     z= GetExampleSentences(searchWord, w)
 # else:
 #     print(' did not pick any word')
 # a = PickSentences(searchWord, z)
-print('sufi')     
+# print('sufi')     
     
     
 
