@@ -119,8 +119,24 @@ def GoThroughList(file):
 def BackupFile(file):
     ogLocation = r'C:\E\OneDrive\!!!PyProjects\FLF'
     backupLocation = r'C:\E\OneDrive\!!!PyProjects\FLF\backup'
+    base, extension = os.path.splitext(file)
+    filePath = os.path.join(backupLocation, base + extension)
+    i=1
+    if os.path.exists(filePath):
+        while True:
+            newpath = "{0}{2}{1}".format(*os.path.splitext(filePath) + (i,))
+            if os.path.exists(newpath):
+                i+=1
+            else:
+                copy(ogLocation+"\\"+file, newpath)
+                return newpath
     print("Backing up ", file)
-    copy(ogLocation+"\\"+file, backupLocation+"\\"+file)
+    copy(ogLocation+"\\"+file, filePath)
+    return filePath
+
+    
+    
+    
 
 def DelWords(file, noteArray):
     with open(file, "r") as f:
@@ -143,24 +159,25 @@ def DelWords(file, noteArray):
 browser = webdriver.Firefox()
 browser.minimize_window()
 headers = {'User-Agent': 'Mozilla/5.0'}
-BackupFile('testfile2.txt')
-u = GoThroughList('testfile2.txt')
+sourcefile = 'probieren.txt'
+BackupFile(sourcefile)
+u = GoThroughList(sourcefile)
 # for searchWord in u:
-#     a = reversoApi.PickSentences(searchWord, browser)
+#     a = reversoApi.PickSentences(searchWord, browser, sourcefile)
 a=[]
 try:
     while True:
         if u:
         # a = [reversoApi.PickSentences(searchWord, browser) for searchWord in u]
             for searchWord in u:
-                a.append(reversoApi.PickSentences(searchWord, browser))
+                a.append(reversoApi.PickSentences(searchWord, browser, sourcefile))
                 u.remove(searchWord)
         else:
             print('finished, no more words available')
-            DelWords('testfile2.txt', a)
+            DelWords(sourcefile, a)
             break
 except KeyboardInterrupt:
-    DelWords('testfile2.txt', a)
+    DelWords(sourcefile, a)
     pass
 # b= CreateNotes(a)
 CreateBatchCards(a)

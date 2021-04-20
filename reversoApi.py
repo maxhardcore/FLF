@@ -26,8 +26,49 @@ import clipboardgrabba
 #beispielsätze?
 
 
+def GetPossibleLemmas(soup, searchWord, file):
+    pickedLemma = False
+    pickedLemmas = []
+    pickedNumbers = []
+    
+    print('-----possible lemmas-----')
+    try:
+        possibleLemmas = soup.find_all("div", {"class": "notice suggested search"})[0].find_all("a")
+    except IndexError:
+        possibleLemmas = []
+        print(searchWord, 'is the only valid lemma')
 
-def FrequencyOfTranslation(searchWord):
+    if possibleLemmas:
+        i=0
+        for lemma in possibleLemmas:
+            print(i, lemma.text)
+            i+=1
+        
+        while pickedLemma == False:
+            chosenLemma = (input("Enter choice of lemma or press 'Enter' to finish:"))
+            if chosenLemma == "":
+                #if nothing has been picked and user presses Enter
+                if not pickedLemmas:
+                    pickedLemma = True
+                    print('skipping lemma')
+                else: # if some options have already been picked and then Enter is pressed
+                    pickedLemma = True
+                    
+                    print('picked all lemmas, did not skip')
+            else: # if input is not 'enter'
+                if int(chosenLemma) not in pickedNumbers:
+                    if chosenLemma.isdigit() and int(chosenLemma) < len(possibleLemmas):
+
+                        ##appenden zum DocFile
+                        pickedNumbers.append(int(chosenLemma))
+                        pickedLemmas.append(possibleLemmas[int(chosenLemma)].text)
+                    else: #if input is too high or not an integer
+                        print('Please enter a valid integer only')
+                else: #if chosen Number already in picked Numbers
+                    print('already chose this translation, please make a different choice') 
+    print(pickedLemmas)
+
+def FrequencyOfTranslation(searchWord, file):
     
     
     # for searchWord in searchList:
@@ -36,6 +77,9 @@ def FrequencyOfTranslation(searchWord):
     response = get(url, headers = headers)
     soup = BeautifulSoup(response.text, 'html.parser')
     LemmaTypeFreq = []
+
+    
+    
     try:
         relevantPartOfHtml1 = soup.find_all("div", {"id": "translations-content"})[0].find_all("a")
     except IndexError:
@@ -56,10 +100,13 @@ def FrequencyOfTranslation(searchWord):
         LemmaTypeFreq.append([lemma, typeList, frequency])
     ##STOPS IF WORD CONTAINS '-', needs fixing!
     print('-----', searchWord, '-----')
+    ##Give user option to lemmatize
+    GetPossibleLemmas(soup, searchWord, file)
+    
     return LemmaTypeFreq
 
-def PickTranslations(searchWord):
-    LemmaTypeFreq = FrequencyOfTranslation(searchWord)
+def PickTranslations(searchWord, file):
+    LemmaTypeFreq = FrequencyOfTranslation(searchWord, file)
     pickedAll = False
     pickedTranslations = []
     pickedNumbers = []
@@ -94,8 +141,8 @@ def PickTranslations(searchWord):
                 print('already chose this translation, please make a different choice')
     return pickedTranslations
 
-def GetExampleSentences(searchWord, browser):
-    pickedWords = PickTranslations(searchWord)
+def GetExampleSentences(searchWord, browser, file):
+    pickedWords = PickTranslations(searchWord, file)
     headers = {'User-Agent': 'Mozilla/5.0'}
     formattedSentences = []
     # browser = webdriver.Firefox()
@@ -134,9 +181,9 @@ def GetExampleSentences(searchWord, browser):
     return formattedSentences
 
 
-def PickSentences(searchWord, browser):
+def PickSentences(searchWord, browser, file):
     pickedSentences = []
-    formattedSentences = GetExampleSentences(searchWord, browser)
+    formattedSentences = GetExampleSentences(searchWord, browser, file)
     if formattedSentences:
         for sentences in formattedSentences:
             i=0
@@ -173,14 +220,14 @@ def PickSentences(searchWord, browser):
 
 
 
-# y = FrequencyOfTranslation()
+y = FrequencyOfTranslation('traslado', 'probieren.txt')
 # w = PickTranslations(y)
 # if w:
 #     z= GetExampleSentences(searchWord, w)
 # else:
 #     print(' did not pick any word')
 # a = PickSentences(searchWord, z)
-# print('sufi')     
+print('sufi')     
     
     
 
