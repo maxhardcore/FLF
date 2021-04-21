@@ -34,7 +34,7 @@ def WaitForCopy(searchterm, translation, browser):
     browser.maximize_window()
     # browser.switch_to.window(browser.current_window_handle)
     
-    location = r'C:\Users\Linus\Desktop'
+    location = r'C:\Users\Linus\AppData\Roaming\Anki2\User 1\collection.media'
     imageUrlCopied = False
     fileExtensions = ['jpg', 'png', 'JPG', 'jpeg', 'webp', 'gif', 'svg', 'PNG', 'jfif', 'GIF', 'mp3']
     while imageUrlCopied == False:
@@ -88,14 +88,17 @@ def CheckUniqueName(location, searchterm):
 
     base, extension = os.path.splitext(searchterm)
     filePath = os.path.join(location, base + extension)
-    i=1
+
     if os.path.exists(filePath):
+        i=1
         while True:
             newpath = "{0}{2}{1}".format(*path.splitext(filePath) + (i,))
             if os.path.exists(newpath):
                 i+=1
             else:
                 return(newpath, str(i))
+    else:
+        i=''
     return(filePath, str(i))
 
 
@@ -111,7 +114,7 @@ def CheckUniqueName(location, searchterm):
     
 
     
-lokation = r'C:\Users\Linus\Desktop'
+lokation = r'C:\Users\Linus\AppData\Roaming\Anki2\User 1\collection.media'
 # cbg(lokation, 'lphrules.jpg')
 
 # WaitForCopy('schlurl')

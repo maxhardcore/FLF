@@ -33,7 +33,12 @@ def CreateSingleCard(image, sentence):
     # 2. Select the deck 
     
     # Find the model to use (Basic, Basic with reversed, ...)
+    
+    #trying this
+    ###trying this 
+
     modelBasic = col.models.byName('2. Picture Words')
+
     # Set the deck
     deck = col.decks.byName('Espanol')
     col.decks.select(deck['id'])
@@ -53,17 +58,17 @@ def CreateSingleCard(image, sentence):
 
 def CreateBatchCards(noteList):
     ##notes is a list of dicts
-    notes = [ 
-      {
-        "Front": "Bonjour",
-        "Back": "Hello",
-      },
-      {
-        "Front": "Merci",
-        "Back": "Thank you",
-      },
-      # Thousands of additional notes...
-    ]
+    # notes = [ 
+    #   {
+    #     "Front": "Bonjour",
+    #     "Back": "Hello",
+    #   },
+    #   {
+    #     "Front": "Merci",
+    #     "Back": "Thank you",
+    #   },
+    #   # Thousands of additional notes...
+    # ]
     
     notez = CreateNotes(noteList)
     
@@ -78,6 +83,11 @@ def CreateBatchCards(noteList):
     # Find the model to use (Basic, Basic with reversed, ...)
     modelBasic = col.models.byName('2. Picture Words')
     # Set the deck
+
+    
+    
+    
+    
     deck = col.decks.byName('Espanol')
     col.decks.select(deck['id'])
     col.decks.current()['mid'] = modelBasic['id']
@@ -146,7 +156,8 @@ def DelWords(file, noteArray):
         for line in lines:
             #only writes those that are not yet added, thus eliminates added words.
             if line.strip("\n") not in addedWords:
-                f.write(line)
+                if line.strip("\n") != "":
+                    f.write(line)
                 # print('deleted word ', line.strip("\n"))
     
     
@@ -170,8 +181,10 @@ try:
         if u:
         # a = [reversoApi.PickSentences(searchWord, browser) for searchWord in u]
             for searchWord in u:
-                a.append(reversoApi.PickSentences(searchWord, browser, sourcefile))
-                u.remove(searchWord)
+                if searchWord != "":
+                    a.append(reversoApi.PickSentences(searchWord, browser, sourcefile))
+                    u.remove(searchWord)
+                    
         else:
             print('finished, no more words available')
             DelWords(sourcefile, a)

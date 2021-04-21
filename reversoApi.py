@@ -74,7 +74,7 @@ def AddLemmasToTextFile(pickedLemmas, file):
         lines = f.readlines()
     strippedLines = [line.strip() for line in lines]   
     with open(file, "a") as f:
-        # f.write('\n')
+        f.write('\n')
         for lemma in pickedLemmas:
             if lemma not in strippedLines:
         #only writes those that are not yet added, thus eliminates added words.
@@ -125,11 +125,12 @@ def PickTranslations(searchWord, file):
     pickedAll = False
     pickedTranslations = []
     pickedNumbers = []
-    if LemmaTypeFreq:
+    if LemmaTypeFreq:        
         for i in range(len(LemmaTypeFreq)):
             print(str(i), ':', LemmaTypeFreq[i])
+        print('-----', searchWord, '-----')
     else:
-        print('well there was no result, so no PickTransl')
+    #     print('well there was no result, so no PickTransl')
         return pickedTranslations
     #user picks from all offered translations, then presses Enter to finish.
 
@@ -174,6 +175,8 @@ def GetExampleSentences(searchWord, browser, file):
         
                 rawSentences= []
                 rawSentencesTrl = []
+                rawSentencesCap = []
+                rawSentencesCapTrl = []
                 #https://stackoverflow.com/questions/57644631/get-the-different-value-from-multiple-elements-with-the-same-class-in-selenium-f
                 # print([my_elem.get_attribute("innerHTML") for my_elem in WebDriverWait(browser, 105).until(EC.visibility_of_all_elements_located((By.CLASS_NAME, "src")))])
                 relevantPartOfHtml2 = browser.find_elements_by_class_name("src")
@@ -181,16 +184,20 @@ def GetExampleSentences(searchWord, browser, file):
                     #some src class elements do not contain text. only append those that exist
                     if exampleSentence.text:
                         boldedSentence = re.sub(searchWord, '<strong>' + searchWord + '</strong>', exampleSentence.text)
+                        capSentence = re.sub(searchWord, searchWord.upper(), exampleSentence.text)
                         rawSentences.append(boldedSentence)
+                        rawSentencesCap.append(capSentence)
                 
                 relevantPartOfHtml3 = browser.find_elements_by_class_name("trg")
                 for exampleSentenceTrl in relevantPartOfHtml3:
                     if exampleSentenceTrl.text:
                         boldedSentenceTrl = re.sub(translation, '<strong>' + translation + '</strong>', exampleSentenceTrl.text)
+                        capSentenceTrl = re.sub(translation, translation.upper(), exampleSentenceTrl.text)
                         rawSentencesTrl.append(boldedSentenceTrl)
-                formattedSentences.append([translation, rawSentences, rawSentencesTrl])
-    else:
-        print(' GES empty since PickTrans empty')
+                        rawSentencesCapTrl.append(capSentenceTrl)
+                formattedSentences.append([translation, rawSentences, rawSentencesTrl, rawSentencesCap, rawSentencesCapTrl])
+    # else:
+    #     print(' GES empty since PickTrans empty')
     # browser.quit()
 
     return formattedSentences
@@ -203,9 +210,9 @@ def PickSentences(searchWord, browser, file):
         for sentences in formattedSentences:
             i=0
             
-            for original in sentences[1]:
+            for original in sentences[3]:
                 print(i, original)
-                print(i, sentences[2][i])
+                print(i, sentences[4][i])
                 i+=1
             
             picked = False
@@ -224,8 +231,8 @@ def PickSentences(searchWord, browser, file):
                     picked = True
                 else:
                     print('Please enter a valid integer only')
-    else:
-        print(' no PickSentences since PickTrans empty')
+    # else:
+        # print(' no PickSentences since PickTrans empty')
     return pickedSentences
 
 
