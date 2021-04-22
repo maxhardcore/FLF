@@ -22,7 +22,7 @@ class Note(object):
 
 
 def CreateSingleCard(image, sentence):
-
+# def CreateSingleCard(noteList):
     # Find the Anki directory 
     anki_home = r'C:\Users\Linus\AppData\Roaming\Anki2\User 1'
     anki_collection_path = os.path.join(anki_home, "collection.anki2")
@@ -46,9 +46,10 @@ def CreateSingleCard(image, sentence):
     
     # 3. Create a new card 
     note = col.newNote()
-    note.fields[0] = "jesge jü" # The Front input field in the U
+    note.fields[0] = sentence # The Front input field in the U
     ###has to be in collection.models (AppData/Roaming)
-    note.fields[1] = '<img src="{0}.jpg">'.format(image)   # The Back input field in the UI
+    # note.fields[1] = '<img src="{0}.jpg">'.format(image)   # The Back input field in the UI
+    note.fields[1] = image
     col.addNote(note)
     
     # 4. Save changes 
@@ -170,20 +171,28 @@ def DelWords(file, noteArray):
 browser = webdriver.Firefox()
 browser.minimize_window()
 headers = {'User-Agent': 'Mozilla/5.0'}
-sourcefile = 'probieren.txt'
+sourcefile = 'adding.txt'
 BackupFile(sourcefile)
 u = GoThroughList(sourcefile)
 # for searchWord in u:
 #     a = reversoApi.PickSentences(searchWord, browser, sourcefile)
-a=[]
+
+
+
+# a=[]
+cardCounter = 0
 try:
     while True:
         if u:
         # a = [reversoApi.PickSentences(searchWord, browser) for searchWord in u]
             for searchWord in u:
                 if searchWord != "":
-                    a.append(reversoApi.PickSentences(searchWord, browser, sourcefile))
+                    a = reversoApi.PickSentences(searchWord, browser, sourcefile)
+                    # a.append(reversoApi.PickSentences(searchWord, browser, sourcefile))
                     u.remove(searchWord)
+                    if a:
+                        cardCounter +=1
+                        CreateSingleCard(a[0][4], a[0][2])
                     
         else:
             print('finished, no more words available')
@@ -193,7 +202,9 @@ except KeyboardInterrupt:
     DelWords(sourcefile, a)
     pass
 # b= CreateNotes(a)
-CreateBatchCards(a)
+# print(len(a)-1, "cards added to Anki")
+print(cardCounter, "cards added to Anki")
+# CreateBatchCards(a)
 browser.quit()
 
 print('refl')

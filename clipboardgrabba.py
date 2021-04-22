@@ -64,6 +64,7 @@ def WaitForCopy(searchterm, translation, browser):
                 urllib.request.urlretrieve (currl, filePath[0])
             except:
                 print('pick another image')
+                browser.minimize_window()
                 time.sleep(10)
                 continue                    
             else:
