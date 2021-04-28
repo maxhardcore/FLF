@@ -99,6 +99,7 @@ def CreateBatchCards(noteList):
       note.fields[0] = current_note["Front"]
       note.fields[1] = current_note["Image"]
       col.addNote(note)
+      print('Card created: ', note.fields[0])
     
     # 4. Save changes
     col.close()
@@ -110,8 +111,10 @@ def CreateBatchCards(noteList):
 
 def CreateNotes(noteArray):
     # noteArray = [Note("Nick", "Programmer"), Note("Alice","Engineer")]
-    # notesList = [dict(Front = n[2], Back = n[1]) for n in noteArray]
-    notesList = [dict(Front = v[2], Image = v[4]) for n in noteArray for v in n]
+    if len(noteArray) > 1:
+        notesList = [dict(Front = n[2], Image = n[4]) for n in noteArray]
+    else:
+        notesList = [dict(Front = v[2], Image = v[4]) for n in noteArray for v in n]
     return notesList
 
     
@@ -149,14 +152,14 @@ def BackupFile(file):
     
     
 
-def DelWords(file, noteArray):
+def DelWords(file, deleteThisWord):
     with open(file, "r") as f:
         lines = f.readlines()
-    addedWords = [v[0] for n in noteArray for v in n]
+    # addedWords = [v[0] for n in noteArray for v in n]
     with open(file, "w") as f:
         for line in lines:
             #only writes those that are not yet added, thus eliminates added words.
-            if line.strip("\n") not in addedWords:
+            if line.strip("\n") != deleteThisWord:
                 if line.strip("\n") != "":
                     f.write(line)
                 # print('deleted word ', line.strip("\n"))
@@ -169,9 +172,10 @@ def DelWords(file, noteArray):
 
 
 browser = webdriver.Firefox()
+browser.install_addon(r'C:\E\OneDrive\!!!PyProjects\FLF\view_image_context_menu_item-1.3-fx.xpi')
 browser.minimize_window()
 headers = {'User-Agent': 'Mozilla/5.0'}
-sourcefile = 'adding.txt'
+sourcefile = 'probieren.txt'
 BackupFile(sourcefile)
 u = GoThroughList(sourcefile)
 # for searchWord in u:
@@ -191,19 +195,29 @@ try:
                     # a.append(reversoApi.PickSentences(searchWord, browser, sourcefile))
                     u.remove(searchWord)
                     if a:
-                        cardCounter +=1
-                        CreateSingleCard(a[0][4], a[0][2])
+                        if len(a) > 1:
+                            cardCounter+= len(a)
+                            CreateBatchCards(a)
+                        else:
+                            cardCounter +=1
+                            CreateSingleCard(a[0][4], a[0][2])
+                        DelWords(sourcefile, a[0][0])
                     
         else:
             print('finished, no more words available')
-            DelWords(sourcefile, a)
+            # DelWords(sourcefile, a)
             break
 except KeyboardInterrupt:
-    DelWords(sourcefile, a)
+    # DelWords(sourcefile, a)
     pass
 # b= CreateNotes(a)
 # print(len(a)-1, "cards added to Anki")
 print(cardCounter, "cards added to Anki")
+print(reversoApi.CountNonexisting(), ' deleted as no translation found')
+u = GoThroughList(sourcefile)
+if u:
+    print(len(u), "words with spelling corrected, run again.")
+print("SWITCH DECKS")
 # CreateBatchCards(a)
 browser.quit()
 

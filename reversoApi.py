@@ -68,7 +68,19 @@ def GetPossibleLemmas(soup, searchWord, file):
                     print('already chose this translation, please make a different choice') 
         print(pickedLemmas)
         AddLemmasToTextFile(pickedLemmas, file)
-    
+        
+def DelWords(file, deleteThisWord):
+    with open(file, "r") as f:
+        lines = f.readlines()
+    # addedWords = [v[0] for n in noteArray for v in n]
+    with open(file, "w") as f:
+        for line in lines:
+            #only writes those that are not yet added, thus eliminates added words.
+            if line.strip("\n") != deleteThisWord:
+                if line.strip("\n") != "":
+                    f.write(line)
+                # print('deleted word ', line.strip("\n"))
+
 def AddLemmasToTextFile(pickedLemmas, file):
     with open(file, "r") as f:
         lines = f.readlines()
@@ -81,7 +93,10 @@ def AddLemmasToTextFile(pickedLemmas, file):
                 f.write(lemma+'\n')
                 print('added', lemma, 'to file')
     
-
+def CountNonexisting():
+    global nonexisting
+    nonexisting += 1
+    return nonexisting
 
 def FrequencyOfTranslation(searchWord, file):
     
@@ -92,13 +107,23 @@ def FrequencyOfTranslation(searchWord, file):
     response = get(url, headers = headers)
     soup = BeautifulSoup(response.text, 'html.parser')
     LemmaTypeFreq = []
-
     
+    ##if misspelling, delete searchWord from txt, and add correct spelling at the end.
+    try:
+        relevantPartOfHtml0 = soup.find_all("div", {"class": "notice applied pair"})
+        correctSpelling = relevantPartOfHtml0[0].find_all("span")[0]["title"]
+        correctSearchWord = re.compile(r'(?<=\")(.*?)(?=\")').findall(correctSpelling)[0]
+        AddLemmasToTextFile([correctSearchWord], file)
+        DelWords(file, searchWord)
+        return LemmaTypeFreq
+    except: #when the word is spelt correctly, dont do anything. 
+        print('what error?')
     
     try:
         relevantPartOfHtml1 = soup.find_all("div", {"id": "translations-content"})[0].find_all("a")
     except IndexError:
         print('no results found for FoT', searchWord)
+        CountNonexisting()
         return LemmaTypeFreq
     
     
@@ -113,7 +138,6 @@ def FrequencyOfTranslation(searchWord, file):
         ##Frequency
         frequency = int(part.attrs["data-freq"])
         LemmaTypeFreq.append([lemma, typeList, frequency])
-    ##STOPS IF WORD CONTAINS '-', needs fixing!
     print('-----', searchWord, '-----')
     ##Give user option to lemmatize
     GetPossibleLemmas(soup, searchWord, file)
@@ -125,16 +149,25 @@ def PickTranslations(searchWord, file):
     pickedAll = False
     pickedTranslations = []
     pickedNumbers = []
-    if LemmaTypeFreq:        
+    if LemmaTypeFreq:  
         for i in range(len(LemmaTypeFreq)):
             print(str(i), ':', LemmaTypeFreq[i])
         print('-----', searchWord, '-----')
     else:
     #     print('well there was no result, so no PickTransl')
+        print(' no translation found for ', searchWord, ' deleting')
+        DelWords(file, searchWord)
         return pickedTranslations
     #user picks from all offered translations, then presses Enter to finish.
 
     while pickedAll == False:
+        if len(LemmaTypeFreq) == 1:
+            pickedTranslation = LemmaTypeFreq[0][0]
+            print('-there was only one option')
+            return pickedTranslation
+        elif len(pickedTranslations) == len(LemmaTypeFreq):
+            print('-no more choice-')
+            return pickedTranslations
         chosenTranslation = (input("Enter choice of translation or press 'Enter' to finish:"))
         if chosenTranslation == "":
             #if nothing has been picked and user presses Enter
@@ -210,9 +243,13 @@ def PickSentences(searchWord, browser, file):
         for sentences in formattedSentences:
             i=0
             
-            for original in sentences[3]:
-                print(i, original)
-                print(i, sentences[4][i])
+            for originalSentence in sentences[3]:
+                print(i, originalSentence)
+                i+=1
+            print('------------------------')
+            i=0
+            for translatedSentence in sentences[4]:
+                print(i, translatedSentence)
                 i+=1
             
             picked = False
@@ -222,7 +259,8 @@ def PickSentences(searchWord, browser, file):
                 if chosenSentence == "":
                     print('skipped the word picksent')
                     picked = True
-                    return pickedSentences
+                    # return pickedSentences
+                    continue
                 elif chosenSentence.isdigit() and int(chosenSentence) < len(sentences[1]):
                     pic = clipboardgrabba.WaitForCopy(searchWord, sentences[0], browser)
                     pickedSentences.append([searchWord, sentences[0], sentences[1][int(chosenSentence)],sentences[2][int(chosenSentence)], pic])
@@ -239,7 +277,7 @@ def PickSentences(searchWord, browser, file):
 
 
 
-
+nonexisting = 0
 
 
 # y = FrequencyOfTranslation('traslado', 'probieren.txt')
