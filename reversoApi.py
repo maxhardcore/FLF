@@ -50,7 +50,8 @@ def GetPossibleLemmas(soup, searchWord, file):
                 #if nothing has been picked and user presses Enter
                 if not pickedLemmas:
                     pickedLemma = True
-                    print('skipping lemma')
+                    DelWords(file, searchWord)
+                    print('deleting', searchWord)
                 else: # if some options have already been picked and then Enter is pressed
                     pickedLemma = True
                     
@@ -115,9 +116,10 @@ def FrequencyOfTranslation(searchWord, file):
         correctSearchWord = re.compile(r'(?<=\")(.*?)(?=\")').findall(correctSpelling)[0]
         AddLemmasToTextFile([correctSearchWord], file)
         DelWords(file, searchWord)
+        print(searchWord, " corrected to ", correctSearchWord)
         return LemmaTypeFreq
     except: #when the word is spelt correctly, dont do anything. 
-        print('what error?')
+        print(searchWord, "was the correct spelling")
     
     try:
         relevantPartOfHtml1 = soup.find_all("div", {"id": "translations-content"})[0].find_all("a")
@@ -173,7 +175,8 @@ def PickTranslations(searchWord, file):
             #if nothing has been picked and user presses Enter
             if not pickedTranslations:
                 pickedAll = True
-                print('skipping PickTrl')
+                DelWords(file, searchWord)
+                print('deleting picktrl', searchWord)
                 return pickedTranslations
             else:
                 pickedAll = True
@@ -257,7 +260,8 @@ def PickSentences(searchWord, browser, file):
                 print(searchWord, ':', sentences[0])
                 chosenSentence = (input("Enter choice of sentence or press 'Enter' to skip:"))
                 if chosenSentence == "":
-                    print('skipped the word picksent')
+                    print('deleting the word picksent')
+                    DelWords(file, searchWord)
                     picked = True
                     # return pickedSentences
                     continue

@@ -175,7 +175,7 @@ browser = webdriver.Firefox()
 browser.install_addon(r'C:\E\OneDrive\!!!PyProjects\FLF\view_image_context_menu_item-1.3-fx.xpi')
 browser.minimize_window()
 headers = {'User-Agent': 'Mozilla/5.0'}
-sourcefile = 'probieren.txt'
+sourcefile = 'adding.txt'
 BackupFile(sourcefile)
 u = GoThroughList(sourcefile)
 # for searchWord in u:
