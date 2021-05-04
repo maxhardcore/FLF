@@ -57,16 +57,19 @@ def GetPossibleLemmas(soup, searchWord, file):
                     
                     print('picked all lemmas, did not skip')
             else: # if input is not 'enter'
-                if int(chosenLemma) not in pickedNumbers:
-                    if chosenLemma.isdigit() and int(chosenLemma) < len(possibleLemmas):
-
-                        ##appenden zum DocFile
-                        pickedNumbers.append(int(chosenLemma))
-                        pickedLemmas.append(possibleLemmas[int(chosenLemma)].text)
-                    else: #if input is too high or not an integer
-                        print('Please enter a valid integer only')
-                else: #if chosen Number already in picked Numbers
-                    print('already chose this translation, please make a different choice') 
+                if chosenLemma.isdigit():
+                    if int(chosenLemma) not in pickedNumbers:
+                        if chosenLemma.isdigit() and int(chosenLemma) < len(possibleLemmas):
+    
+                            ##appenden zum DocFile
+                            pickedNumbers.append(int(chosenLemma))
+                            pickedLemmas.append(possibleLemmas[int(chosenLemma)].text)
+                        else: #if input is too high or not an integer
+                            print('Please enter a valid integer only')
+                    else: #if chosen Number already in picked Numbers
+                        print('already chose this translation, please make a different choice') 
+                else:
+                    print('enter a valid integer please.')
         print(pickedLemmas)
         AddLemmasToTextFile(pickedLemmas, file)
         
