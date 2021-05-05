@@ -222,16 +222,16 @@ def GetExampleSentences(searchWord, browser, file):
                 for exampleSentence in relevantPartOfHtml2:
                     #some src class elements do not contain text. only append those that exist
                     if exampleSentence.text:
-                        boldedSentence = re.sub(searchWord, '<strong>' + searchWord + '</strong>', exampleSentence.text)
-                        capSentence = re.sub(searchWord, searchWord.upper(), exampleSentence.text)
+                        boldedSentence = re.sub(searchWord, '<strong>' + searchWord + '</strong>', exampleSentence.text, flags=re.IGNORECASE)
+                        capSentence = re.sub(searchWord, searchWord.upper(), exampleSentence.text, flags=re.IGNORECASE)
                         rawSentences.append(boldedSentence)
                         rawSentencesCap.append(capSentence)
                 
                 relevantPartOfHtml3 = browser.find_elements_by_class_name("trg")
                 for exampleSentenceTrl in relevantPartOfHtml3:
                     if exampleSentenceTrl.text:
-                        boldedSentenceTrl = re.sub(translation, '<strong>' + translation + '</strong>', exampleSentenceTrl.text)
-                        capSentenceTrl = re.sub(translation, translation.upper(), exampleSentenceTrl.text)
+                        boldedSentenceTrl = re.sub(translation, '<strong>' + translation + '</strong>', exampleSentenceTrl.text, flags=re.IGNORECASE)
+                        capSentenceTrl = re.sub(translation, translation.upper(), exampleSentenceTrl.text, flags=re.IGNORECASE)
                         rawSentencesTrl.append(boldedSentenceTrl)
                         rawSentencesCapTrl.append(capSentenceTrl)
                 formattedSentences.append([translation, rawSentences, rawSentencesTrl, rawSentencesCap, rawSentencesCapTrl])
