@@ -248,15 +248,16 @@ def PickSentences(searchWord, browser, file):
     if formattedSentences:
         for sentences in formattedSentences:
             i=0
-            
-            for originalSentence in sentences[3]:
-                print(i, originalSentence)
-                i+=1
-            print('------------------------')
-            i=0
             for translatedSentence in sentences[4]:
                 print(i, translatedSentence)
                 i+=1
+            print('------------------------')
+            i=0
+            for originalSentence in sentences[3]:
+                print(i, originalSentence)
+                i+=1
+
+
             
             picked = False
             while picked == False:
