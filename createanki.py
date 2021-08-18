@@ -54,7 +54,7 @@ def CreateSingleCard(image, sentence):
     
     # 4. Save changes 
     col.close()
-    print('Card created: ', sentence)
+    # print('Card created: ', sentence)
     
 
 def CreateBatchCards(noteList):
@@ -99,7 +99,7 @@ def CreateBatchCards(noteList):
       note.fields[0] = current_note["Front"]
       note.fields[1] = current_note["Image"]
       col.addNote(note)
-      print('Card created: ', note.fields[0])
+      # print('Card created: ', note.fields[0])
     
     # 4. Save changes
     col.close()
@@ -144,7 +144,7 @@ def BackupFile(file):
             else:
                 copy(ogLocation+"\\"+file, newpath)
                 return newpath
-    print("Backing up ", file)
+    # print("Backing up ", file)
     copy(ogLocation+"\\"+file, filePath)
     return filePath
 

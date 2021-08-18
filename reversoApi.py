@@ -36,7 +36,7 @@ def GetPossibleLemmas(soup, searchWord, file):
         possibleLemmas = soup.find_all("div", {"class": "notice suggested search"})[0].find_all("a")
     except IndexError:
         possibleLemmas = []
-        print(searchWord, 'is the only valid lemma')
+        # print(searchWord, 'is the only valid lemma')
 
     if possibleLemmas:
         i=0
@@ -51,11 +51,11 @@ def GetPossibleLemmas(soup, searchWord, file):
                 if not pickedLemmas:
                     pickedLemma = True
                     DelWords(file, searchWord)
-                    print('deleting', searchWord)
+                    # print('deleting', searchWord)
                 else: # if some options have already been picked and then Enter is pressed
                     pickedLemma = True
                     
-                    print('picked all lemmas, did not skip')
+                    # print('picked all lemmas, did not skip')
             else: # if input is not 'enter'
                 if chosenLemma.isdigit():
                     if int(chosenLemma) not in pickedNumbers:
@@ -95,7 +95,7 @@ def AddLemmasToTextFile(pickedLemmas, file):
             if lemma not in strippedLines:
         #only writes those that are not yet added, thus eliminates added words.
                 f.write(lemma+'\n')
-                print('added', lemma, 'to file')
+                # print('added', lemma, 'to file')
     
 def CountNonexisting():
     global nonexisting
@@ -119,7 +119,7 @@ def FrequencyOfTranslation(searchWord, file):
         correctSearchWord = re.compile(r'(?<=\")(.*?)(?=\")').findall(correctSpelling)[0]
         AddLemmasToTextFile([correctSearchWord], file)
         DelWords(file, searchWord)
-        print(searchWord, " corrected to ", correctSearchWord)
+        # print(searchWord, " corrected to ", correctSearchWord)
         return LemmaTypeFreq
     except: #when the word is spelt correctly, dont do anything. 
         print(searchWord, "was the correct spelling")
@@ -127,7 +127,7 @@ def FrequencyOfTranslation(searchWord, file):
     try:
         relevantPartOfHtml1 = soup.find_all("div", {"id": "translations-content"})[0].find_all("a")
     except IndexError:
-        print('no results found for FoT', searchWord)
+        # print('no results found for FoT', searchWord)
         CountNonexisting()
         return LemmaTypeFreq
     
@@ -160,7 +160,7 @@ def PickTranslations(searchWord, file):
         print('-----', searchWord, '-----')
     else:
     #     print('well there was no result, so no PickTransl')
-        print(' no translation found for ', searchWord, ' deleting')
+        # print(' no translation found for ', searchWord, ' deleting')
         DelWords(file, searchWord)
         return pickedTranslations
     #user picks from all offered translations, then presses Enter to finish.
@@ -168,7 +168,7 @@ def PickTranslations(searchWord, file):
     while pickedAll == False:
         if len(LemmaTypeFreq) == 1:
             pickedTranslation = LemmaTypeFreq[0][0]
-            print('-there was only one option')
+            # print('-there was only one option')
             return pickedTranslation
         elif len(pickedTranslations) == len(LemmaTypeFreq):
             print('-no more choice-')
@@ -179,11 +179,11 @@ def PickTranslations(searchWord, file):
             if not pickedTranslations:
                 pickedAll = True
                 DelWords(file, searchWord)
-                print('deleting picktrl', searchWord)
+                # print('deleting picktrl', searchWord)
                 return pickedTranslations
             else:
                 pickedAll = True
-                print('picked all translations, did not skip')
+                # print('picked all translations, did not skip')
         else: # if input is not 'enter'
             if int(chosenTranslation) not in pickedNumbers:
                 if chosenTranslation.isdigit() and int(chosenTranslation) < len(LemmaTypeFreq):
@@ -209,6 +209,7 @@ def GetExampleSentences(searchWord, browser, file):
                 url = r"https://context.reverso.net/traduccion/espanol-aleman/" + searchWord + '#' + translation
                 
                 browser.get(url)
+
                 time.sleep(3)
                 print(browser.current_url)
         
@@ -218,6 +219,7 @@ def GetExampleSentences(searchWord, browser, file):
                 rawSentencesCapTrl = []
                 #https://stackoverflow.com/questions/57644631/get-the-different-value-from-multiple-elements-with-the-same-class-in-selenium-f
                 # print([my_elem.get_attribute("innerHTML") for my_elem in WebDriverWait(browser, 105).until(EC.visibility_of_all_elements_located((By.CLASS_NAME, "src")))])
+                time.sleep(2)
                 relevantPartOfHtml2 = browser.find_elements_by_class_name("src")
                 for exampleSentence in relevantPartOfHtml2:
                     #some src class elements do not contain text. only append those that exist
@@ -264,7 +266,7 @@ def PickSentences(searchWord, browser, file):
                 print(searchWord, ':', sentences[0])
                 chosenSentence = (input("Enter choice of sentence or press 'Enter' to skip:"))
                 if chosenSentence == "":
-                    print('deleting the word picksent')
+                    # print('deleting the word picksent')
                     DelWords(file, searchWord)
                     picked = True
                     # return pickedSentences
@@ -273,7 +275,7 @@ def PickSentences(searchWord, browser, file):
                     pic = clipboardgrabba.WaitForCopy(searchWord, sentences[0], browser)
                     pickedSentences.append([searchWord, sentences[0], sentences[1][int(chosenSentence)],sentences[2][int(chosenSentence)], pic])
                     
-                    print('did not skip, added')
+                    # print('did not skip, added')
                     picked = True
                 else:
                     print('Please enter a valid integer only')

@@ -53,7 +53,8 @@ def WaitForCopy(searchterm, translation, browser):
         # browser.get(urlSearchterm)
         #as soon as url contains a link to an image
         if any(extension in browser.current_url for extension in fileExtensions):
-            print(browser.current_url)
+        #if browser.current_url.endswith(any(extension) for extension in fileExtensions)
+            # print(browser.current_url)
             currl = browser.current_url
             
             #check if filename exists already
@@ -77,7 +78,10 @@ def WaitForCopy(searchterm, translation, browser):
                browser.switch_to.window(handle)
                if handle != curr:
                   browser.close()
-            browser.minimize_window()
+            try:      
+                browser.minimize_window()
+            except:
+                print ('NoSuchWindowException')
     return imagePath
 
         
