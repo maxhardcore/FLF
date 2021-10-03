@@ -228,6 +228,7 @@ def GetExampleSentences(searchWord, browser, file):
                         capSentence = re.sub(searchWord, searchWord.upper(), exampleSentence.text, flags=re.IGNORECASE)
                         rawSentences.append(boldedSentence)
                         rawSentencesCap.append(capSentence)
+                            
                 
                 relevantPartOfHtml3 = browser.find_elements_by_class_name("trg")
                 for exampleSentenceTrl in relevantPartOfHtml3:
