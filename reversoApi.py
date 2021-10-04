@@ -13,6 +13,14 @@ import time
 # from selenium.webdriver.support.ui import WebDriverWait
 # from selenium.webdriver.common.by import By
 # from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import StaleElementReferenceException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions
+
+
+
 import clipboardgrabba
 #https://github.com/kerrickstaley/genanki
 #https://python.plainenglish.io/make-flashier-flashcards-automating-anki-with-python-2744ed025366
@@ -114,7 +122,7 @@ def FrequencyOfTranslation(searchWord, file):
     
     ##if misspelling, delete searchWord from txt, and add correct spelling at the end.
     try:
-        relevantPartOfHtml0 = soup.find_all("div", {"class": "notice applied pair"})
+        relevantPartOfHtml0 = soup.find_all("div", {"class": "notice applied search"})
         correctSpelling = relevantPartOfHtml0[0].find_all("span")[0]["title"]
         correctSearchWord = re.compile(r'(?<=\")(.*?)(?=\")').findall(correctSpelling)[0]
         AddLemmasToTextFile([correctSearchWord], file)
@@ -210,7 +218,8 @@ def GetExampleSentences(searchWord, browser, file):
                 
                 browser.get(url)
 
-                time.sleep(3)
+                ##wonder if I need this?
+                #time.sleep(3)
                 print(browser.current_url)
         
                 rawSentences= []
@@ -219,8 +228,22 @@ def GetExampleSentences(searchWord, browser, file):
                 rawSentencesCapTrl = []
                 #https://stackoverflow.com/questions/57644631/get-the-different-value-from-multiple-elements-with-the-same-class-in-selenium-f
                 # print([my_elem.get_attribute("innerHTML") for my_elem in WebDriverWait(browser, 105).until(EC.visibility_of_all_elements_located((By.CLASS_NAME, "src")))])
-                time.sleep(2)
-                relevantPartOfHtml2 = browser.find_elements_by_class_name("src")
+
+                
+                ####StaleElementException can occur: time.sleep(2) doesn not prevent it entirely
+                #time.sleep(2)
+                #relevantPartOfHtml2 = browser.find_elements_by_class_name("src")
+                
+                #https://stackoverflow.com/questions/27003423/staleelementreferenceexception-on-python-selenium
+                ###this SHOULD prevent StaleElement. can only check by doing it repeatedly.
+                #waits a maximum of 3 seconds to find all 'src' elements
+                my_element_classname = 'src'
+                ignored_exceptions=(NoSuchElementException,StaleElementReferenceException,)
+                relevantPartOfHtml2 = WebDriverWait(browser, 3,ignored_exceptions=ignored_exceptions)\
+                        .until(expected_conditions.presence_of_all_elements_located((By.CLASS_NAME, my_element_classname)))
+                
+                
+                
                 for exampleSentence in relevantPartOfHtml2:
                     #some src class elements do not contain text. only append those that exist
                     if exampleSentence.text:
