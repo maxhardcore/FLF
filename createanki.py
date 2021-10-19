@@ -173,9 +173,15 @@ def DelWords(file, deleteThisWord):
 
 browser = webdriver.Firefox()
 browser.install_addon(r'C:\E\OneDrive\!!!PyProjects\FLF\view_image_context_menu_item-1.3-fx.xpi')
+# browser.get('https://context.reverso.net/traduccion/espanol-aleman/maestro')
+# browser.find_element_by_xpath('//*[@id="didomi-notice-agree-button"]').click()
+# browser.find_element_by_xpath('//*[@id="didomi-notice-agree-button"]').click()
+# browser.find_element_by_xpath('/html/body/aside/div/div[1]/div/div[2]/button').click()
+# browser.find_element_by_xpath('/html/body/div[3]/section[1]/div[2]/div/div[1]/button').click()
+
 browser.minimize_window()
 headers = {'User-Agent': 'Mozilla/5.0'}
-sourcefile = 'atesta.txt'
+sourcefile = 'notYet.txt'
 BackupFile(sourcefile)
 u = GoThroughList(sourcefile)
 # for searchWord in u:
