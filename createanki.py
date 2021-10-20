@@ -207,6 +207,7 @@ try:
                         else:
                             cardCounter +=1
                             CreateSingleCard(a[0][4], a[0][2])
+    
                         DelWords(sourcefile, a[0][0])
                     
         else:

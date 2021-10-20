@@ -18,6 +18,7 @@ from selenium.common.exceptions import StaleElementReferenceException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions
+import sys
 
 
 
@@ -166,8 +167,11 @@ def FrequencyOfTranslation(searchWord, file):
             connected = True
         except:    
             print("conn err, reattempt number: ", attempt)
-            time.sleep(3)
+            time.sleep(2)
             attempt+=1
+    if attempt==10:
+        print("ConnError 10")
+        sys.exit()
             
     soup = BeautifulSoup(response.text, 'html.parser')
 
