@@ -144,7 +144,7 @@ sourcefile = 'nonreflex_utf8.txt'
 BackupFile(sourcefile)
 u = GoThroughList(sourcefile)
 
-
+#test
 
 cardCounter = 0
 wordCounter = 0
