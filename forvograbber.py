@@ -66,6 +66,11 @@ correctSearchWord = re.compile(r'(?<=Play)(.*?)(?=\'\,\')').findall(possibleLemm
 new_str = [','.join(x.split('\'')[1:]) for x in correctSearchWord]
 nl = [base64.b64decode(x).decode() for x in new_str]
 a = LinkGrabber(nl)
+for x in a:
+    browser.get(x)
+    ##add to anki: [sound: LINK] -> localize addon.
+##find a way to play the top one automatically, and then the ones I choose in order of upvotes
+##then add the one I choose to the card. but play top one automatically just to see about differences.
 
 
 # url = 'http://google.com/favicon.ico'
