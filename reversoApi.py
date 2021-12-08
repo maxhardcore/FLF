@@ -14,7 +14,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions
 import sys
-
+import requests
+import base64
 
 import clipboardgrabba
 
@@ -273,6 +274,7 @@ def PickSentences(searchWord, browser, file):
     pickedSentences = []
     formattedSentences = GetExampleSentences(searchWord, browser, file)
     if formattedSentences:
+        GetAudio(searchWord, browser)
         for sentences in formattedSentences:
             i=0
             for translatedSentence in sentences[4]:
@@ -302,6 +304,26 @@ def PickSentences(searchWord, browser, file):
                 else:
                     print('Please enter a valid integer only')
     return pickedSentences
+
+
+def GetAudio(searchWord, browser):
+    
+    mp3url = "https://forvo.com/mp3/"
+    wordurl = "https://forvo.com/word/" + searchWord + "/#es/"
+    headers = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:66.0) Gecko/20100101 Firefox/66.0",
+    "Accept-Encoding": "*",
+    "Connection": "keep-alive"
+}
+    response = requests.get(wordurl, headers = headers)
+    soup = BeautifulSoup(response.text, 'html.parser')
+    htmlSource = str(soup.find_all("div", {"id": "language-container-es"}))
+    correctPartOfHtml = re.compile(r'(?<=Play)(.*?)(?=\'\,\')').findall(htmlSource)
+    encryptedLinks = [','.join(x.split('\'')[1:]) for x in correctPartOfHtml]
+    decryptedLinks = [base64.b64decode(x).decode() for x in encryptedLinks]
+    if decryptedLinks:
+        browser.get(mp3url + decryptedLinks[0])
+        # time.sleep(3)
 
 nonexisting = 0
 

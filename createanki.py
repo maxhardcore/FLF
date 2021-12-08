@@ -31,10 +31,10 @@ def CreateSingleCard(image, sentence):
     
     # Find the model to use (Basic, Basic with reversed, ...)
     
-    modelBasic = col.models.byName('2. Picture Words')
+    modelBasic = col.models.by_name('2. Picture Words')
 
     # Set the deck
-    deck = col.decks.byName('Espanol')
+    deck = col.decks.by_name('Espanol')
     col.decks.select(deck['id'])
     col.decks.current()['mid'] = modelBasic['id']
     
@@ -64,14 +64,14 @@ def CreateBatchCards(noteList):
     
     # 2. Select the deck
     # Find the model to use (Basic, Basic with reversed, ...)
-    modelBasic = col.models.byName('2. Picture Words')
+    modelBasic = col.models.by_name('2. Picture Words')
     # Set the deck
 
     
     
     
     
-    deck = col.decks.byName('Espanol')
+    deck = col.decks.by_name('Espanol')
     col.decks.select(deck['id'])
     col.decks.current()['mid'] = modelBasic['id']
     
