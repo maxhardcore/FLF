@@ -323,7 +323,6 @@ def GetAudio(searchWord, browser):
     decryptedLinks = [base64.b64decode(x).decode() for x in encryptedLinks]
     if decryptedLinks:
         browser.get(mp3url + decryptedLinks[0])
-        # time.sleep(3)
 
 nonexisting = 0
 
