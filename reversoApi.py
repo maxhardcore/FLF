@@ -143,9 +143,11 @@ def FrequencyOfTranslation(searchWord, file):
     for part in relevantPartOfHtml1:
          ##get Lemma,
         lemma = re.compile(r'(?<=\'translation\'\>)(.*?)(?=\<\/em\>)').findall(part.attrs["title"])
+        if '/b>' in lemma[0]:
+            lemma = [re.compile(r'(?<=b> )(.*)').findall(lemma[0])[0]]
         if len(re.compile(r'(?<=\>)\w+').findall(part.attrs["title"])) >2:
         ##(if exists:) Type  (also sometimes contains pronounciation IPA)
-            typeList = re.compile(r'(?<=\>)\w+').findall(part.attrs["title"])[2:]
+            typeList = re.compile(r'(?<=\>)\w+').findall(part.attrs["title"])[1]
         else:
             typeList = []
         ##Frequency
@@ -193,15 +195,19 @@ def PickTranslations(searchWord, file):
                 pickedAll = True
                 # print('picked all translations, did not skip')
         else: # if input is not 'enter'
-            if int(chosenTranslation) not in pickedNumbers:
-                if chosenTranslation.isdigit() and int(chosenTranslation) < len(LemmaTypeFreq):
-                    translation = LemmaTypeFreq[int(chosenTranslation)][0][0]
-                    pickedTranslations.append(translation)
-                    pickedNumbers.append(int(chosenTranslation))
-                else: #if input is too high or not an integer
-                    print('Please enter a valid integer only')
-            else:
-                print('already chose this translation, please make a different choice')
+            if chosenTranslation.isdigit():
+                if int(chosenTranslation) not in pickedNumbers:
+                    if chosenTranslation.isdigit() and int(chosenTranslation) < len(LemmaTypeFreq):
+                        translation = LemmaTypeFreq[int(chosenTranslation)][0][0]
+                        pickedTranslations.append(translation)
+                        pickedNumbers.append(int(chosenTranslation))
+                    else: #if input is too high or not an integer
+                        print('Please enter a valid integer only')
+                else:
+                    print('already chose this translation, please make a different choice')
+            else: #if input is too high or not an integer
+                print('Please enter a valid integer only')
+
     return pickedTranslations
 
 def GetExampleSentences(searchWord, browser, file):
@@ -224,7 +230,7 @@ def GetExampleSentences(searchWord, browser, file):
                 rawSentencesCap = []
                 rawSentencesCapTrl = []
                
-                WebDriverWait(browser, 5).until(expected_conditions.presence_of_element_located((By.XPATH, '/html/body/div[3]/section[1]/div[2]/section[3]/div[2]/button')))
+                WebDriverWait(browser, 10).until(expected_conditions.presence_of_element_located((By.XPATH, '/html/body/div[3]/section[1]/div[2]/section[3]/div[2]/button')))
                 
                 html_source = browser.page_source
                 lulzy = html_source.replace('\n', ' ').replace('\r', '')

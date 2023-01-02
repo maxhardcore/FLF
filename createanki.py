@@ -167,6 +167,7 @@ try:
                             CreateSingleCard(a[0][4], a[0][2])
     
                         DelWords(sourcefile, a[0][0])
+                    print(cardCounter, "cards added to Anki")
                     
         else:
             print('finished, no more words available')
